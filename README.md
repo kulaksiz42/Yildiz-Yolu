@@ -1,53 +1,49 @@
 # Yıldız Yolu — 3D Futbolcu Kariyeri
 
-Mobil tarayıcı için özgün, sinematik futbolcu kariyeri oyunu.
+Mobil tarayıcıda oynanabilen, özgün bir sinematik futbolcu kariyeri prototipi.
 
-## Proje durumu
+**[Canlı oyunu aç](https://kulaksiz42.github.io/Yildiz-Yolu/)** · **Güncel oyun sürümü: v0.5** · [Son sürüm raporu](docs/GAMEPLAY_V05.md)
 
-## Oynanış v0.3
+## Oynanış v0.5
 
-Joystick yönü, gerçek pas, dinamik savunmacılar, top kapma, kontra atak, frikik ve farklı şut sonuçları GitHub'daki canlı sürüme eklendi. Yerel Chromium 2D yedek kipinde 23/23 test geçti; **gerçek iPhone Safari/WebGL henüz test edilmedi.** Ayrıntılar: [Oynanış v0.3 raporu](docs/GAMEPLAY_V03.md).
+- Altı aşamalı oyuncu oluşturma: ad/lakap, ülke, mevki, görünüm/güçlü ayak, karakter ve kulüp
+- Üç bağımsız kariyer kayıt yuvası ve eski yerel kaydı koruyarak içeri aktarma
+- Kesintisiz pas ve geri pas, seçilebilir pas hedefi, takım arkadaşları ve hareketli savunmacılar
+- Şut çeşitleri: sert, plase, aşırtma; serbest vuruş, top kapma, kontra atak
+- Dinamik saha radarı ve 3D maç anları, WebGL yoksa 2D yedek görünüm
+- Ülkeye göre başlangıç hikâyesi ve hoca konuşmaları
 
+**Sınır:** Bu hâlâ prototiptir. Yüksek kaliteli rig'li futbolcu animasyonları, gelişmiş top fiziği, uzun maç/kariyer sistemleri ve gerçek Safari performans testleri henüz tamamlanmadı. Ülke/lig adlarının bir kısmı kurgusaldır. Neo Star Soccer veya FIFA'nın kodu, görsel varlığı ya da marka materyalleri oyuna dahil edilmedi.
 
-**Mevcut sürüm: V2 GitHub Geliştirme 001.** Temel prototip üzerine kritik kontrol ve fizik düzeltmeleri uygulandı.
+## Proje dosyaları
 
-- Bu kaynaklar **Claude Checkpoint 001 (v0.2.1) değildir**. Checkpoint 001 ZIP'i henüz bu depoya aktarılmadı.
-- Checkpoint 002 geliştirmeleri kaynak olarak teslim alınamadığı için bu depoda yok.
-- V2, saf **WebGL1 + JavaScript** kullanır; Three.js veya harici CDN gerektirmez. WebGL kullanılamıyorsa 2D yedek görünüm vardır.
-- Karakter oluşturma, sinematik görüşme, temel maç pozisyonları ve yerel kayıt prototip düzeyindedir.
-- [Canlı oyunu aç](https://kulaksiz42.github.io/Yildiz-Yolu/). GitHub Pages dağıtımı yapılandırılmıştır; canlıda hangi commit'in göründüğü bu araç ortamından doğrulanamadı.\n- Gerçek iPhone Safari ve WebGL görsel performansı **doğrulanmadı**; bu depo üretim sürümü değildir.\n- Değişiklikler ve test sınırları için `docs/CHANGELOG.md` dosyasına bak.
-
-## Dosyalar
-
-| Yol | Amaç |
+| Yol | Görev |
 | --- | --- |
-| `index.html` | Oynanabilir tek dosya, oluşturulan çıktı |
-| `src/logic.js` | Düzenlenebilir oyun mantığı ve WebGL |
-| `src/template.html` | HTML/CSS ve arayüz şablonu |
-| `build.py` | Kaynaklardan `index.html` dosyasını yeniden üretir |
-| `docs/ROADMAP.md` | Aşamalı geliştirme planı |
-| `docs/CHECKPOINT_001_NOTES.md` | Kodu henüz aktarılmamış Claude düzeltmelerinin notları |
+| `index.html` | GitHub Pages'te oynanan tek dosya |
+| `src/logic.js` | Özgün WebGL1 motoru, fizik, kariyer ve kontroller |
+| `src/template.html` | HTML ve CSS şablonu |
+| `build.py` | Tek dosyayı yeniden üretir |
+| `tests/smoke.py` | GitHub Actions Chromium mobil smoke testi |
+| `.github/workflows/check.yml` | Sözdizimi ve build tutarlılığı |
+| `.github/workflows/mobile-smoke.yml` | Otomatik tarayıcı testi |
+| `docs/GAMEPLAY_V05.md` | v0.5 kapsamı, test sonuçları ve sınırlar |
+| `docs/THIRD_PARTY_SOURCE_REVIEW.md` | Neo Star Soccer yayın paketi ve lisans incelemesi |
 
 ## Geliştirme
-
-Python 3 ile proje klasöründe:
 
 ```bash
 python3 build.py
 python3 -m http.server 8000
 ```
 
-Ardından bilgisayarda `http://localhost:8000` adresini aç. `index.html` tek dosyadır ve internete yayımlandığında statik HTTPS altında çalışabilir. WebGL için gerçek tarayıcı testi gerekir.
+Tarayıcıdan `http://localhost:8000` aç. Güncelleme için `src/` dosyalarını düzenle, `build.py` çalıştır, kontrolleri doğrula ve ardından `index.html` dosyasını aynı commit'te güncelle.
 
-## Çalışma disiplini
+## Kayıt veri güvenliği
 
-1. Önce mevcut kodu ve kayıt anahtarını incele.
-2. Tek bir hata/özellik üzerinde çalış.
-3. `src/` kodlarını güncelle, `python3 build.py` ile `index.html` üret.
-4. Test et; Safari testi yapılmadıysa yapıldı deme.
-5. Her tamamlanan aşamayı ayrı GitHub commit'i olarak kaydet.
-6. Checkpoint 001 kaynakları gelirse önce fark analizi yap; mevcut dosyaları körlemesine üzerine yazma.
+Yeni kariyerler `yildizyolu_slots_v1` anahtarında üç bağımsız yuva tutar. Eski `yildizyolu_cinematic_v2` kaydı **silinmez veya yeni kayıt tarafından yazılmaz**. Aynı yuvaya yeni kariyer başlatmak onay gerektirir ve önce ek yedek oluşturulur. Kayıtlar cihazdaki tarayıcı depolamasındadır; tarayıcı verilerini silmek kayıtları kaybettirebilir. Bulut senkronizasyonu yoktur.
 
-## Haklar
+## Üçüncü taraf kodlar
 
-Bu özgün bir prototiptir. FIFA ve Neo Star Soccer ile ilişkisi yoktur. Gerçek kulüp adları, oyuncu isimleri, logolar, formalar ve portrelerin ticari kullanım hakları ayrıca değerlendirilmelidir.
+Neo Star Soccer GitHub deposu derlenmiş yayın dosyalarını barındırır. Açık lisans sunulmadığından oradaki JS/CSS paketleri veya oyun varlıkları kullanılmadı. Kullanıcının bu depoya eklediği `neostarsoccer-site-main.zip` dosyası oyun derlemesinin parçası değildir; kamuya açık yeniden dağıtımı izin bakımından ayrıca değerlendirilmelidir.
+
+Bu proje FIFA ve Neo Star Soccer ile bağlantılı değildir.
