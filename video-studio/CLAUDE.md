@@ -36,3 +36,12 @@ Sen bu depodaki çalışan video stüdyosunu geliştiriyorsun. **Önce sistemi �
 
 ## v0.2: 2026-11-02 kontrolü
 Yeni **zorunlu** okuma: `docs/CLAUDE_CODE_HANDOFF.md`. Ortak saat `public/timeline.js`; ElevenLabs gerçek kelime hizalaması, diğer durumlarda tahmin etiketi. `scripts/quality.py` her render için contact sheet ve teknik rapor üretir. Görsel AI değerlendirmesi hâlâ yapılmıyor. Tekrarlanabilir geliştirme akışı için `.claude/skills/video-studio/SKILL.md` kullan. Başlangıç görevi: P0 testleri, ardından storyboard/onay kapıları.
+
+## v0.3 — Güncel uygulama ve sınırlar
+
+- Sahne editörü: `public/index.html`, `public/app.js`, `public/style.css`; yeni `storyboard_approved=false` kayıtları için POST `/api/videos/:id/approve` gereklidir.
+- Sahne validasyonu, kamera seçimi, 12/24/30 FPS, 540/1080 presetleri `scripts/story.mjs`; `public/draw.js` deterministik kamera planını uygular. Native Canvas 540×960, 1080 çıkış upscale'dır.
+- Gerçek ses/MP4 testleri `scripts/smoke.py`, tarayıcı arayüzü `scripts/ui_smoke.py` ile (mock backend). Kullanıcı değişikliği onaylamadan render yok.
+- Kurallı sahne kontrolü `scripts/quality.py`; bu **AI Critic değildir**. Gerçek ses dinlemesi ve kompozisyon kontrolü insan tarafından yapılır.
+- Claude Free için JSON üretim ve aktarım promptu: `docs/CLAUDE_FREE_BRIEF.md`; kodu veya GitHub'daki dosyaları yazma yetkisi varsayılmaz.
+- Gerçek sosyal medya yayını kapalı; kişisel API anahtarları depoya konmaz. Futbol oyunu dosyaları korunur.
