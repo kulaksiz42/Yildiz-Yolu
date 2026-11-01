@@ -42,3 +42,16 @@
 - [ ] AI görsel eleştirmen, gerçek beat onayı ve render öncesi storyboard henüz yok.
 - [ ] Üretim yayın servisi hâlâ devre dışı.
 - [ ] `docs/CLAUDE_CODE_HANDOFF.md` Claude Code için ayrıntılı görev paketidir.
+
+
+## v0.3 — Yerel sürüm (2026-11-02)
+
+- [x] Sahne düzenleyicisi, storyboard onayı, sıra değiştirme, 2–12 sahne, 5 kamera planı.
+- [x] Göreli sahne ağırlığı, deterministik `seek(t)` ile canlı storyboard kareleri.
+- [x] 12/24/30 FPS, 540×960 veya upscale 1080×1920 MP4.
+- [x] Render sonrası kurallı sahne uyarıları (çok uzun başlık, uzun/kısa sahne, anlatım yoğunluğu ve plan tekrarı).
+- [x] Claude Free sohbetinden JSON storyboard içe aktarma, inceleme zorunluluğu.
+- [x] Panel üzerinden kalite detayları; Playwright offline UI testi.
+- [ ] Bulut görsel modeli ile gerçek AI Critic, ses duyma/dinleme, sahne için hedefli yeniden render.
+- [ ] Native 1080 çizim, karakter rig kütüphanesi, Three.js/Blender/Remotion ayrı adaptörleri.
+- [ ] Yayın API'leri, Next.js ve SQL/queue; bunlar sonraki sürümlerdir.

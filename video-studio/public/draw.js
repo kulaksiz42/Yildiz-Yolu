@@ -134,10 +134,17 @@
     const progress=timed?timed.progress:phase-index;
     const scene=scenes[index];
     const type=video.style;
+    // Deterministic virtual camera. No mutable easing or frame-to-frame simulation.
+    const shot=scene.shot||'wide';
+    const zoom=shot==='close'?1.16:shot==='medium'?1.07:1;
+    const pan=(shot==='pan-left'?-1:shot==='pan-right'?1:0)*32*ease(progress);
+    ctx.save();
+    ctx.translate(W/2,H/2);ctx.scale(zoom,zoom);ctx.translate(-W/2+pan,-H/2);
     if(type==='explainer')explainer(ctx,scene,index,progress,elapsed);
     else if(type==='whatif')whatif(ctx,scene,index,progress,elapsed);
     else if(type==='backyard')backyard(ctx,scene,index,progress,elapsed);
     else survival(ctx,scene,index,progress,elapsed,video);
+    ctx.restore();
     topbar(ctx,video,index,scenes.length,type==='survival'?'SURVIVAL':type==='explainer'?'EXPLAINER':type==='backyard'?'DIORAMA':'WHAT IF');
     captions(ctx,timed?.subtitle||scene.caption||video.title,progress);
     text(ctx,'KULAKSIZ VIDEO STUDIO',270,922,{size:15,color:type==='backyard'?'#263848':'#d1ddf1',align:'center',weight:800});

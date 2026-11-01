@@ -59,9 +59,22 @@
       const end=i===scenes.length-1?duration:last&&next?(last.end+next.start)/2:duration*(i+1)/scenes.length;
       return {index:i,caption:String(scene.caption||video.title||''),start:+start.toFixed(4),end:+end.toFixed(4),wordStart:begin,wordEnd:pos};
     });
+    // Explicit storyboard weights set a coherent shot clock, without relying on frame playback.
+    // Older stories with no weights retain their original speech-distribution timeline.
+    const hasWeights=scenes.some(s=>s.weight!=null);
+    if (hasWeights) {
+      const weights=scenes.map(s=>clamp(Number(s.weight)||1,.25,8));
+      const total=weights.reduce((a,b)=>a+b,0);
+      let cursor=0;
+      segments.forEach((seg,i)=>{
+        seg.start=+cursor.toFixed(4);
+        cursor += duration * weights[i]/total;
+        seg.end=i===segments.length-1?duration:+cursor.toFixed(4);
+      });
+    }
     // Ensure continuous segments even with very short scripts and many scenes.
     for(let i=0;i<segments.length-1;i++) {
-      const boundary=clamp(segments[i].end,segments[i].start, duration);
+      const boundary=clamp(segments[i].end,segments[i].start,duration);
       segments[i].end=boundary;segments[i+1].start=boundary;
     }
     return {duration,source:measured?'elevenlabs':'estimated',words:allWords,scenes:segments};
@@ -73,8 +86,8 @@
     if(active<0)active=timeline.words.findIndex(w=>elapsed<w.start);
     if(active<0)active=Math.max(0,timeline.words.length-1);
     // Subtitle window changes every ~4 words, with no global timing drift.
-    const first=Math.max(scene.wordStart,Math.floor(Math.max(0,active-scene.wordStart)/4)*4+scene.wordStart);
-    const captionWords=timeline.words.slice(first,Math.min(first+4,scene.wordEnd));
+    const first=Math.floor(Math.max(0,active)/4)*4;
+    const captionWords=timeline.words.slice(first,Math.min(first+4,timeline.words.length));
     const subtitle=captionWords.map(w=>w.text).join(' ')||scene.caption;
     return {scene,sceneIndex:scene.index,progress:clamp((elapsed-scene.start)/Math.max(.001,scene.end-scene.start),0,1),activeWord:active,subtitle};
   }

@@ -85,3 +85,22 @@ Bu klasördeki özgün prototip kodu için kullanım izni kullanıcıya aittir. 
 - Panelde **Kalite raporu** düğmesi bulunur. Yetkili kullanıcı `/api/videos/<id>/quality`, `/timeline`, `/contact` uç noktalarını açabilir.
 - Python için `pillow` da gerekir. Çıktılar `.gitignore` ile depoya eklenmez.
 - Claude Code geliştirme rehberi: `docs/CLAUDE_CODE_HANDOFF.md`; yeniden kullanılabilir beceri: `.claude/skills/video-studio/SKILL.md`.
+
+## v0.3 — Storyboard editörü ve Claude Free desteği
+
+1. **Yeni video** oluştur veya **Claude Free taslağını aktar** ile Claude'un oluşturduğu saf JSON'u içeri al. Kaynak prompt: [docs/CLAUDE_FREE_BRIEF.md](docs/CLAUDE_FREE_BRIEF.md).
+2. **Storyboard** düğmesinde sahnelerin Canvas örnek karelerini gör. Başlık, seslendirme, yönetmen notu, 5 kamera planı, sahne sırası ve göreli süreyi değiştir.
+3. **Kaydet ve onayla**: Yeni v0.3 videolarında storyboard onayı olmadan render başlamaz (`409`). Eski v0.2 kayıtları geriye uyumludur. Senaryo değişince onay yenilenir.
+4. 12, 24 veya 30 FPS seç; 540×960 özgün çizim ya da **540×960'tan büyütülmüş** 1080×1920 MP4 dışa aktar. Yüksek çözünürlük seçeneği *native* 1080 değildir.
+5. Her render sonrasında teknik kalite raporu, contact sheet ve **kurallara dayalı** sahne notları üretilir. Görsel estetiği değerlendiren AI entegrasyonu hâlâ yoktur.
+
+### v0.3 test komutları
+
+```bash
+npm run check             # 16 otomatik Node testi
+python3 scripts/smoke.py  # Gerçek HTTP, onay kapısı, sesli MP4, kalite raporu
+python3 scripts/ui_smoke.py  # Gerçek Chromium'da arayüz, mock API ile; ağ engeli yok
+STUDIO_SMOKE_HIGH_RES=1 python3 scripts/smoke.py  # 24fps / upscale 1080 test
+```
+
+**Henüz yok:** Claude/ChatGPT API ile doğrudan senaryo üretimi, native 1080 Canvas çizimi, otomatik AI Critic, Next.js ve sosyal medya OAuth/yayın. Claude Free yalnızca kopyala-yapıştır üzerinden yaratıcı metin sağlayabilir; dosya yazma/GitHub erişimi yoktur. Gerçek seslendirme için yerel eSpeak veya ElevenLabs gerekir.
