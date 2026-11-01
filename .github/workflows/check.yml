@@ -17,6 +17,10 @@ jobs:
         run: node --check src/logic.js
       - name: Check anatomical mesh and joint transforms
         run: node tests/rig-audit.js
+      - name: Validate GLB and renderer bridge
+        run: |
+          node --check assets/rig/bridge.js
+          python tests/test_rig_assets.py
       - name: Build standalone HTML
         run: python3 build.py
       - name: Ensure generated HTML is committed
