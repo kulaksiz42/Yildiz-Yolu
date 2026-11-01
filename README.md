@@ -1,3 +1,11 @@
+# Yeni: Kulaksız Video Studio
+
+Bu depoya **otomatik dikey video üretimi için çalışan bir ilk sürüm** eklendi: [Video Studio klasörü](video-studio/README.md). Şifreli panel, 4 Canvas animasyon tipi, Playwright + FFmpeg ile MP4 üretimi ve takvim içerir. **Sosyal medya otomatik yayını henüz bağlı değildir.**
+
+Eski **Yıldız Yolu** futbol oyununun kaynakları aşağıda ve mevcut klasörlerinde korunmaktadır.
+
+---
+
 # Yıldız Yolu — 3D Futbolcu Kariyeri
 
 Mobil tarayıcıda oynanabilen, özgün bir sinematik futbolcu kariyeri prototipi.
