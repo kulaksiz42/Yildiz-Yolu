@@ -25,14 +25,15 @@ jobs:
         run: python3 build.py
       - name: Ensure generated HTML is committed
         run: git diff --exit-code -- index.html
-      - name: Confirm the standalone page has no external scripts
+      - name: Check local 3D rig runtime and offline assets
         run: |
           python3 - <<'PY'
           from pathlib import Path
           html=Path('index.html').read_text(encoding='utf-8')
           assert html.count('<script>') == 1
-          assert html.count('</script>') == 1
-          assert '<script src=' not in html
+          assert html.count('</script>') == 2
+          assert '<script src="./assets/rig/bridge.js"></script>' in html
+          assert 'https://cdn.' not in html and 'unpkg.com' not in html
           assert 'function advanceFlight(dt)' in html
           assert 'persistInputs();draft[k]' in html
           print('Basic standalone build checks passed.')
