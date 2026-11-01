@@ -4,7 +4,7 @@ Bu liste, kayıtlı GitHub kaynaklarıyla doğrulanan V2 temel sürümden başla
 
 ## Kaynak bütünlüğü
 
-- [x] GitHub özel deposu açıldı.
+- [x] GitHub deposu açıldı ve Pages için herkese açık yapıldı.
 - [x] V2 başlangıç `index.html` aktarıldı.
 - [x] Düzenlenebilir `src/logic.js`, `src/template.html` ve derleme betiği eklendi.
 - [ ] Claude Checkpoint 001 ZIP'i geldiğinde içeriği karşılaştır ve kontrollü olarak entegre et.
@@ -12,10 +12,10 @@ Bu liste, kayıtlı GitHub kaynaklarıyla doğrulanan V2 temel sürümden başla
 
 ## Öncelik sırası
 
-1. **P0:** Mevcut V2'de karakter adı kaybı ve aynalı kamera sorunlarını doğrudan kaynakta test edip düzelt. Checkpoint 001'in aynı çözümünü kaynak ZIP gelince referans al.
+1. **TAMAMLANDI (yerel işlev testi):** İsim kaybı ve aynalı kamera matematiği düzeltildi. Checkpoint 001 kaynak ZIP'i gelirse ayrıca karşılaştır.
 2. **P1:** Sinematik hoca görüşmesinde karakterlerin üstündeki diyalog paneli ve kamera açıları.
-3. **P1:** Futbolcunun ten/saç/forma seçimlerini tüm sahnelerde koru.
-4. **P1:** Top fiziğini kare sayısına değil gerçek zaman farkına bağla; 30/60/120 Hz karşılaştır.
+3. **KISMEN TAMAMLANDI:** Ten ve saç kariyer verisindeydi; forma rengi seçimi ve model çağrıları eklendi. Gerçek WebGL görünüm doğrulaması bekliyor.
+4. **TAMAMLANDI (matematik):** Top uçuşu `dt` ile hesaplanıyor; 30/60/120 Hz testleri eşdeğer sonuç verdi. Gerçek GPU animasyonu henüz gözlemlenmedi.
 5. **P1:** Sezon sonu, güvenli kayıt ve geri yükleme yolları.
 6. **P2:** Kaliteli 3D insan karakteri, animasyonlar, top ve kaleci fiziği.
 7. **P2:** Türkiye/İngiltere/İspanya bazlı özgün kariyer olayları ve ülke verileri.
