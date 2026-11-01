@@ -1,0 +1,22 @@
+name: Video Studio Check
+on:
+  push:
+    paths:
+      - 'video-studio/**'
+      - '.github/workflows/video-studio-check.yml'
+  pull_request:
+    paths:
+      - 'video-studio/**'
+      - '.github/workflows/video-studio-check.yml'
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: video-studio
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run check

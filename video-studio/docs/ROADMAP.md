@@ -1,0 +1,34 @@
+# Gelişim planı ve doğrulanmış durum
+
+## v0.1 — Çalışıyor / yerel MVP
+
+- [x] Şifreli yerel Node.js yönetim paneli; oturum HttpOnly/SameSite, giriş denemesi sınırı.
+- [x] Hikâye oluşturma, önizleme, düzenleme, yayın tarihi kaydetme.
+- [x] Dört orijinal Canvas çizim biçimi.
+- [x] Deterministik Playwright kare yakalama; FFmpeg H.264 MP4 çıktı.
+- [x] Yerel espeak TTS veya opsiyonel ElevenLabs TTS.
+- [x] `ffprobe` ile doğrulanan 8 saniyelik test video (1 Kasım 2026, yerel test).
+- [x] Node testleri ve smoke test betiği.
+- [ ] Canlı site, gerçek sosyal medya OAuth, gerçek otomatik 21.00 paylaşımı **yok**.
+
+## v0.2 — Gerçek hikâye stüdyosu
+
+1. Serbest prompt -> Claude hikâye taslağı -> kullanıcı onayı -> storyboard kare onayı.
+2. İçerikte yüz/stil tutarlılığı ve sahne rig'i; 3D Three.js, Blender ve Remotion için ayrı motor adaptörleri.
+3. ElevenLabs `/with-timestamps` veya forced alignment ile konuşulan kelime bazlı altyazı.
+4. Ses miks kontrolü, yüksek kalite MP4 + küçük mobil MP4, kapak görseli, paylaşım metni.
+5. Testleri her render için çalıştır; ücretsiz kullanıcılara maliyet izleme.
+
+## v0.3 — Yayın ve operasyon
+
+1. Next.js yönetim paneline / güvenli SQL veritabanına geçiş. Uygulamanın mevcut v0.1 paneli Next.js değildir.
+2. Instagram profesyonel hesap izinleri, `/{ig-user-id}/media` + tamamlandıktan sonra `media_publish`, imzalı HTTPS medya URL'si, token yenileme, kota takibi.
+3. YouTube OAuth + video upload + `private`/`publishAt`, doğrulama ve gizlilik ayarları.
+4. X API ücretlendirme/rate-limit doğrulaması; medya yükleme/yayın entegrasyonu.
+5. 21.00 Europe/Istanbul cron/queue; her hesap için ayrı durum; idempotency; kısmi başarısızlıkta yalnız başarısız platformu yeniden dene; günlük hata bildirimi.
+6. HTTPS, güvenli şifreli token deposu, yedekleme, günlük kesintisiz servis ve uyarılar.
+7. Önce test hesaplarıyla doğrulama; gerçek hesaplar için kullanıcı onayı.
+
+## Yayın güvenlik ilkesi
+
+`planned` = takvim kaydıdır. API platformun olumlu yanıtını ve medya ID'sini doğrulamadan `published` yapılmaz. İşler yeniden çalıştırıldığında daha önce yayımlanan hesaplara aynı gönderi ikinci kez gönderilmez.
