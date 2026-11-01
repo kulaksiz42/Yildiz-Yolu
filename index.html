@@ -458,7 +458,7 @@ function footballer(x,z,skin,hair,shirt,shorts,anim=0,scale=1,angle=0,style='kis
  const kick=pose==='kick',dive=pose.startsWith('dive'),movement=pose==='idle'?.09:pose==='kick'?.42:1;
  const gait=Math.sin(anim*1.3),step=gait*.31*movement,arms=-step*.80;
  const bend=dive?clamp((Math.sin(anim)+1)*.37+.32,.0,1):0;
- const lean=dive?((pose==='dive-left'?-1:1)*-.95*bend):kick?-.12:Math.min(.10,.02+Math.abs(gait)*.035);
+ const lean=dive?((pose==='dive-left'?-1:1)*-.95*bend*(Math.cos(angle)<0?-1:1)):kick?-.12:Math.min(.10,.02+Math.abs(gait)*.035);
  const hipRaise=dive?.24:.018+Math.abs(gait)*.012*movement;
  const root=mul(tr(x,hipRaise,z),mul(ry(angle),mul(rz(lean),sc(scale,scale,scale))));
  const piece=(kind,px,py,pz,w,h,d,color,rxA=0,rzA=0)=>{
@@ -500,8 +500,8 @@ function footballer(x,z,skin,hair,shirt,shorts,anim=0,scale=1,angle=0,style='kis
   piece('ball',ankle[0],.108,ankle[2]+.11,.192,.14,.35,PLAYER_BOOT);
   piece('ball',ankle[0],.075,ankle[2]+.172,.18,.045,.29,shade(PLAYER_BOOT,1.5));
   const shoulder=[side*.405,1.44,0];
-  const elbow=[side*.53,1.125,-side*arms*.54];
-  const wrist=[side*.51,.87,-side*arms*1.23+.04];
+  const elbow=[side*(dive?.76:.53),dive?1.35:1.125,-side*arms*.54];
+  const wrist=[side*(dive?1.10:.51),dive?1.32:.87,-side*arms*1.23+.04];
   limb('sleeve',shoulder,[shoulder[0]+(elbow[0]-shoulder[0])*.49,1.29,elbow[2]*.52],.112,shirt);
   limb('limb',[shoulder[0]+(elbow[0]-shoulder[0])*.49,1.29,elbow[2]*.52],elbow,.097,skin);
   limb('limb',elbow,wrist,.079,skin);
