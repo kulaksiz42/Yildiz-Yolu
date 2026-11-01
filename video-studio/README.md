@@ -10,7 +10,7 @@ Gerekli: Node 20+, Python 3.9+, FFmpeg/ffprobe, Python Playwright, Playwright Ch
 
 ```bash
 cd video-studio
-python3 -m pip install playwright
+python3 -m pip install playwright pillow
 python3 -m playwright install chromium
 export STUDIO_PASSWORD='buraya-en-az-10-karakter-guclu-sifre'
 node server.mjs
@@ -20,7 +20,7 @@ Windows PowerShell:
 
 ```powershell
 cd video-studio
-py -m pip install playwright
+py -m pip install playwright pillow
 py -m playwright install chromium
 $env:STUDIO_PASSWORD = 'buraya-guclu-sifre-yazin'
 $env:PYTHON_BIN = 'python'
@@ -76,3 +76,12 @@ Fikir kaynağı rehberlere ve kullanım/lisans notlarına `docs/OPEN_SOURCE.md` 
 ## Lisans
 
 Bu klasördeki özgün prototip kodu için kullanım izni kullanıcıya aittir. Üçüncü taraf bağımlılık ve içeriklerin kendi lisansları ayrıca geçerlidir. Dış projelerden kod alınmamıştır.
+
+
+## v0.2 — Ortak zaman çizelgesi + render sonrası kalite denetimi
+
+- `public/timeline.js` görüntü ve ses olayları için tek zaman çizelgesi sağlar. Ele alınan kelime grubu konuşmaya göre değişir. TTS olarak ElevenLabs `/with-timestamps` kullanılırsa karakter zamanları kelimeye dönüştürülüp `source=elevenlabs` olarak kaydedilir; eSpeak veya sessiz renderda kaynak `estimated` olur ve **kesin** kelime eşleşmesi iddia edilmez.
+- Her başarılı render ayrıca `output/<id>.timeline.json`, `.quality.json`, `.contact.jpg` üretir. QA kare hash, temel akış/kodek/çözünürlük/süre/ses ve boş kare örneklemesini içerir. Görüntü kompozisyonu ve ses estetiğini AI henüz değerlendirmez; son kontrol insanındır.
+- Panelde **Kalite raporu** düğmesi bulunur. Yetkili kullanıcı `/api/videos/<id>/quality`, `/timeline`, `/contact` uç noktalarını açabilir.
+- Python için `pillow` da gerekir. Çıktılar `.gitignore` ile depoya eklenmez.
+- Claude Code geliştirme rehberi: `docs/CLAUDE_CODE_HANDOFF.md`; yeniden kullanılabilir beceri: `.claude/skills/video-studio/SKILL.md`.
