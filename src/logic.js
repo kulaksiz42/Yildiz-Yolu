@@ -104,7 +104,7 @@ function applyCareerChoice(event,choice,i){
  for(const [key,delta] of Object.entries(choice[1])){
   const stat=STORY_EFFECT_MAP[key]||key;
   if(!Object.hasOwn(STORY_LABELS,stat) || !Number.isFinite(delta))continue;
-  const base=stat in career ? Number(career[stat])||0 : Number(career.storyMetrics[stat])||50;
+  const base=stat in career ? Number(career[stat])||0 : Number(career.storyMetrics[stat] ?? 50);
   const value=clamp(base+delta,0,100);
   if(stat in career)career[stat]=value;else career.storyMetrics[stat]=value;
   if(value!==base)diffs.push((STORY_LABELS[stat]||stat)+' '+(value>base?'+':'')+(value-base));
@@ -112,7 +112,7 @@ function applyCareerChoice(event,choice,i){
  career.eventsSeen.push(event.id);
  career.choiceHistory=Array.isArray(career.choiceHistory)?career.choiceHistory:[];
  career.choiceHistory.push({type:'career_event',id:event.id,season:career.season,week:career.week,choice:i,effects:{...choice[1]}});
- career.lastStoryResult=event.title+' · '+diffs.join(' · ');
+ career.lastStoryResult=event.title+' · '+diffs.join(' · ');career.lastStoryResultWeek=career.week;
  save();activeCareerEvent=null;showHub();
  if(diffs.length)toast(diffs.slice(0,2).join(' · '));
 }
@@ -126,7 +126,7 @@ function showCareerEvent(){
 }
 
 function statsHTML(items){return items.map(([k,v])=>`<div class="hubstat"><strong>${v}</strong><small>${k}</small></div>`).join('')}
-function showHub(){switchTo('hub');let l=leagues[career.country];$('#hub-week').textContent=`${career.season}. SEZON / HAFTA ${career.week}`;$('#hub-title').textContent=career.name;$('#hub-club').textContent=`${l.clubs[career.club][0]} · ${pos[career.pos]} · ${l.league}`;$('#hub-stats').innerHTML=statsHTML([['GOL',career.goals],['HOCA',career.coach],['ŞÖHRET',career.fame]]);$('#hub-news').textContent=career.lastStoryResult|| (career.coach>=55?`${l.media||'Spor Arena'} • Teknik direktör ${l.coach}, ${career.nick} için ilk 11'e göz kırptı.`:`${l.name} spor basını • ${career.nick} için forma savaşının henüz yeni başladığı konuşuluyor.`);const evt=nextCareerEvent();const btn=$('#career-event');if(btn){btn.disabled=!evt;btn.hidden=!evt;btn.textContent=evt?'KARİYER OLAYI · '+evt.title:'BU HAFTA OLAY YOK'} }
+function showHub(){switchTo('hub');let l=leagues[career.country];$('#hub-week').textContent=`${career.season}. SEZON / HAFTA ${career.week}`;$('#hub-title').textContent=career.name;$('#hub-club').textContent=`${l.clubs[career.club][0]} · ${pos[career.pos]} · ${l.league}`;$('#hub-stats').innerHTML=statsHTML([['GOL',career.goals],['HOCA',career.coach],['ŞÖHRET',career.fame]]);$('#hub-news').textContent=(career.lastStoryResultWeek===career.week?career.lastStoryResult:null)|| (career.coach>=55?`${l.media||'Spor Arena'} • Teknik direktör ${l.coach}, ${career.nick} için ilk 11'e göz kırptı.`:`${l.name} spor basını • ${career.nick} için forma savaşının henüz yeni başladığı konuşuluyor.`);const evt=nextCareerEvent();const btn=$('#career-event');if(btn){btn.disabled=!evt;btn.hidden=!evt;btn.textContent=evt?'KARİYER OLAYI · '+evt.title:'BU HAFTA OLAY YOK'} }
 $('#career-event').onclick=showCareerEvent;
 $('#play').onclick=()=>{startMatch()};$('#train').onclick=()=>{if(career.energy<35){toast('Enerjin düşük. Maç öncesi dinlen.');return}career.shoot=clamp(career.shoot+2,0,95);career.energy-=12;career.coach=clamp(career.coach+2,0,100);save();toast('Bitiricilik +2 · Enerji -12');showHub()};
 /* GAMEPLAY V0.3: gerçek pas, hareketli savunma, ayrı savunma ve frikik anları.
