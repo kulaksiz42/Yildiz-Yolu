@@ -180,7 +180,7 @@
   const lerp=1-Math.exp(-3.3*dt);
   engine.cx+=(target.x-engine.cx)*lerp;engine.cz+=(target.z-engine.cz)*lerp;
   camera.position.set(engine.cx,3.6,engine.cz-10.8);
-  camera.lookAt(engine.cx,1.25,engine.cz+16);
+  camera.lookAt(engine.cx,-3.2,engine.cz+16);
   camera.fov=55;
   const w=window.innerWidth,h=window.innerHeight;
   if(engine.w!==w||engine.h!==h){
