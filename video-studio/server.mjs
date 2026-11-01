@@ -54,7 +54,7 @@ function renderStory(id) {
   if(!item)throw Error('Video bulunamadı.');
   if(item.render_status==='rendering')throw Error('Video zaten render ediliyor.');
   item.render_status='rendering';item.error=null;save();running.add(id);
-  const child=spawn(process.env.PYTHON_BIN||'python3',['scripts/render.py','--id',id,'--port',String(PORT)],{
+  const child=spawn(process.env.PYTHON_BIN||'python3',['scripts/render.py','--id',id,'--port',String(PORT),'--fps',String(item.render_fps||12),'--size',String(item.render_size||540)],{
     cwd:ROOT,env:{...process.env,STUDIO_RENDER_TOKEN:INTERNAL_KEY},stdio:['ignore','pipe','pipe']
   });
   let detail='';
@@ -71,7 +71,7 @@ function renderStory(id) {
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,`http://${req.headers.host||'localhost'}`);
   const p=url.pathname;
-  if(req.method==='GET'&&p==='/health')return json(res,200,{ok:true,version:'0.1.0'});
+  if(req.method==='GET'&&p==='/health')return json(res,200,{ok:true,version:'0.3.0'});
   if(req.method==='POST'&&!validOrigin(req))return json(res,403,{error:'Origin reddedildi.'});
   if(req.method==='POST'&&p==='/api/login'){
     try{
@@ -108,7 +108,7 @@ const server=http.createServer(async(req,res)=>{
     const id=url.searchParams.get('id');const item=videos.find(v=>v.id===id);
     return item?json(res,200,{video:item}):json(res,404,{error:'Bulunamadı'});
   }
-  const m=p.match(/^\/api\/videos\/([\w-]{36})(?:\/(render|file|timeline|quality|contact))?$/);
+  const m=p.match(/^\/api\/videos\/([\w-]{36})(?:\/(render|file|timeline|quality|contact|storyboard|approve))?$/);
   if(m && safeId(m[1])){
     const id=m[1],item=videos.find(v=>v.id===id);if(!item)return json(res,404,{error:'Video bulunamadı.'});
     if(req.method==='PATCH'&&!m[2]){
@@ -116,7 +116,15 @@ const server=http.createServer(async(req,res)=>{
       try{const changed=cleanUpdate(item,await body(req));Object.assign(item,changed);item.render_status='pending';item.file=null;save();return json(res,200,{video:item});}
       catch(e){return json(res,400,{error:e.message});}
     }
+    if(req.method==='GET'&&m[2]==='storyboard')return json(res,200,{storyboard:{scenes:item.scenes,approved:!!item.storyboard_approved,approved_at:item.storyboard_approved_at||null,fps:item.render_fps||12,size:item.render_size||540}});
+    if(req.method==='POST'&&m[2]==='approve'){
+      if(item.render_status==='rendering')return json(res,409,{error:'Render devam ediyor.'});
+      if(!Array.isArray(item.scenes)||item.scenes.length<2)return json(res,400,{error:'En az 2 sahne gerekli.'});
+      item.storyboard_approved=true;item.storyboard_approved_at=new Date().toISOString();save();
+      return json(res,200,{ok:true,approved_at:item.storyboard_approved_at});
+    }
     if(req.method==='POST'&&m[2]==='render'){
+      if(item.storyboard_approved===false)return json(res,409,{error:'Render öncesinde storyboardu inceleyip onayla.'});
       try{renderStory(id);return json(res,202,{ok:true,message:'Render başlatıldı.'});}
       catch(e){return json(res,409,{error:e.message});}
     }

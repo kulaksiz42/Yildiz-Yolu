@@ -29,6 +29,15 @@ try:
     assert req('/api/login',{'password':password})['ok']
     video=req('/api/videos',{'title':'Ya elektrikler kesilirse','style':'whatif','duration':8,'script':'Elektrikler gitti. Şimdi ne yapacağız?'})['video']
     assert video['render_status']=='pending'
+    # Explicit storyboard approval gate: render without approval must fail.
+    try:
+        req('/api/videos/'+video['id']+'/render',{},'POST')
+        raise AssertionError('Storyboard gate bypassed')
+    except urllib.error.HTTPError as err: assert err.code==409
+    if os.environ.get('STUDIO_SMOKE_HIGH_RES')=='1':
+        patch=req('/api/videos/'+video['id'],{'render_fps':24,'render_size':1080},'PATCH')['video']
+        assert patch['render_fps']==24 and patch['render_size']==1080
+    assert req('/api/videos/'+video['id']+'/approve',{},'POST')['ok']
     assert req('/api/videos/'+video['id']+'/render',{},'POST')['ok']
     deadline=time.monotonic()+150
     while time.monotonic()<deadline:
@@ -43,7 +52,12 @@ try:
     timeline=json.loads((ROOT/'output'/f"{video['id']}.timeline.json").read_text())
     quality=json.loads((ROOT/'output'/f"{video['id']}.quality.json").read_text())
     assert timeline['source']=='estimated' and timeline['scenes']
+    if os.environ.get('STUDIO_SMOKE_HIGH_RES')=='1':
+        stream=next(s for s in info['streams'] if s.get('codec_type')=='video')
+        assert (stream['width'],stream['height'])==(1080,1920)
+        assert stream['avg_frame_rate'].startswith('24/')
     assert quality['status']=='pass',quality
+    assert quality['editorial_heuristics'] and len(quality['editorial_heuristics'])==len(video['scenes'])
     assert (ROOT/'output'/f"{video['id']}.contact.jpg").exists()
     assert req('/api/videos/'+video['id']+'/timeline')['duration'] >= 8
     assert req('/api/videos/'+video['id']+'/quality')['status']=='pass'

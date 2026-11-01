@@ -72,7 +72,7 @@ def tts(text: str, folder: Path):
     return None, "silent", None
 
 
-def make_video(story: dict, port: int, token: str, fps: int = 12, browser_bin: str | None = None):
+def make_video(story: dict, port: int, token: str, fps: int = 12, browser_bin: str | None = None, size: int = 540):
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
@@ -126,6 +126,7 @@ def make_video(story: dict, port: int, token: str, fps: int = 12, browser_bin: s
         ff=["ffmpeg","-y","-hide_banner","-loglevel","error","-framerate",str(fps),"-i",str(work/'frame_%05d.png')]
         if voice:
             ff += ["-i",str(voice),"-filter:a","apad"]
+        if size==1080: ff += ["-vf","scale=1080:1920:flags=lanczos"]  # upscale from 540x960 Canvas
         ff += ["-c:v","libx264","-preset","veryfast","-crf","24","-pix_fmt","yuv420p","-r",str(fps),"-movflags","+faststart"]
         if voice:ff += ["-c:a","aac","-b:a","128k"]
         ff += ["-t",str(duration),str(temp_mp4)]
@@ -135,7 +136,7 @@ def make_video(story: dict, port: int, token: str, fps: int = 12, browser_bin: s
         # Technical QA generates a contact sheet + report; visual aesthetics still need review.
         from quality import check_video
         quality=check_video(target,duration,fps,voice is not None,frame_paths,work,OUT,video_id,
-                            deterministic,built_timeline['source'])
+                            deterministic,built_timeline['source'],output_width=size,storyboard=story.get('scenes',[]),shot_timeline=built_timeline['scenes'])
         (OUT/(video_id+'.json')).write_text(json.dumps({"duration":duration,"fps":fps,"voice_engine":voice_engine,
             "word_alignment":built_timeline['source'],"quality_status":quality['status'],"file":target.name},ensure_ascii=False,indent=2),encoding='utf8')
         print(f"OK: {target} ({target.stat().st_size} bytes)", flush=True)
@@ -147,13 +148,15 @@ def main():
     parser.add_argument('--id',required=True)
     parser.add_argument('--port',type=int,default=4173)
     parser.add_argument('--fps',type=int,default=12)
+    parser.add_argument('--size',type=int,default=540)
     args=parser.parse_args()
-    if not 3<=args.fps<=30:raise RuntimeError('FPS 3..30 olmalı.')
+    if args.fps not in (12,24,30):raise RuntimeError('FPS 12,24,30 olmalı.')
+    if args.size not in (540,1080):raise RuntimeError('Boyut 540 veya 1080 olmalı.')
     token=os.environ.get('STUDIO_RENDER_TOKEN')
     if not token:raise RuntimeError('STUDIO_RENDER_TOKEN sunucu tarafından verilmedi.')
     url=f'http://127.0.0.1:{args.port}/api/render-data?id={args.id}&key={token}'
     with urllib.request.urlopen(url,timeout=10) as resp: story=json.load(resp)['video']
-    make_video(story,args.port,token,args.fps,os.environ.get('BROWSER_BIN'))
+    make_video(story,args.port,token,args.fps,os.environ.get('BROWSER_BIN'),args.size)
 
 if __name__=='__main__':
     try:main()

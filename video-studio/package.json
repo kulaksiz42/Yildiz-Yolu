@@ -1,6 +1,6 @@
 {
   "name": "kulaksiz-video-studio",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "Koddan dikey video üreten, önizleyen ve takvimleyen yerel-first stüdyo",
@@ -9,7 +9,10 @@
     "test": "node --test tests/*.test.mjs",
     "check": "node --check server.mjs && node --check public/app.js && node --check public/draw.js && node --check public/timeline.js && node --test tests/*.test.mjs",
     "render:help": "python3 scripts/render.py --help",
-    "smoke": "python3 scripts/smoke.py"
+    "smoke": "python3 scripts/smoke.py",
+    "ui:smoke": "python3 scripts/ui_smoke.py"
   },
-  "engines": {"node": ">=20"}
+  "engines": {
+    "node": ">=20"
+  }
 }
