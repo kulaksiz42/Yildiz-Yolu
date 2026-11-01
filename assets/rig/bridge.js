@@ -4,6 +4,8 @@
  * Legacy WebGL stays as the manual fallback and retains all gameplay state. */
 (function(){
  'use strict';
+ // The modern dual-GLB mode owns the only WebGL context; do not register a second renderer.
+ if(new URLSearchParams(location.search).get('rig3d')==='1')return;
  const root=new URL('./',document.currentScript.src).href;
  const oldCanvas=document.getElementById('world'), matchScreen=document.getElementById('s-match');
  if(!oldCanvas||!matchScreen)return;
