@@ -115,6 +115,7 @@
     }
     rect(ctx,27,110,485,75,14,'#19364cae');text(ctx,'KESİT GÖRÜNÜMÜ  /  KATMANLAR',45,131,{size:23,color:'#f9fcff',weight:900});
   }
+  const timelineCache=new WeakMap();
   function render(canvas,video,t){
     if(!canvas||!video)return;
     canvas.width=W;canvas.height=H;
@@ -122,8 +123,15 @@
     const scenes=Array.isArray(video.scenes)&&video.scenes.length?video.scenes:[{caption:video.title}];
     const duration=Math.max(1,Number(video.duration)||18);
     const elapsed=Math.max(0,Math.min(duration-.001,Number(t)||0));
+    let timeline=timelineCache.get(video);
+    if (!timeline || timeline.duration!==duration || timeline.__data!==video.timeline) {
+      timeline=video.timeline && video.timeline.duration===duration ? video.timeline : global.StudioTimeline?.build(video,{duration});
+      if(timeline){timeline.__data=video.timeline;timelineCache.set(video,timeline);}
+    }
+    const timed=timeline?global.StudioTimeline.at(timeline,elapsed):null;
     const phase=elapsed/duration*scenes.length;
-    const index=Math.min(scenes.length-1,Math.floor(phase)),progress=phase-index;
+    const index=timed?timed.sceneIndex:Math.min(scenes.length-1,Math.floor(phase));
+    const progress=timed?timed.progress:phase-index;
     const scene=scenes[index];
     const type=video.style;
     if(type==='explainer')explainer(ctx,scene,index,progress,elapsed);
@@ -131,9 +139,9 @@
     else if(type==='backyard')backyard(ctx,scene,index,progress,elapsed);
     else survival(ctx,scene,index,progress,elapsed,video);
     topbar(ctx,video,index,scenes.length,type==='survival'?'SURVIVAL':type==='explainer'?'EXPLAINER':type==='backyard'?'DIORAMA':'WHAT IF');
-    captions(ctx,scene.caption||video.title,progress);
+    captions(ctx,timed?.subtitle||scene.caption||video.title,progress);
     text(ctx,'KULAKSIZ VIDEO STUDIO',270,922,{size:15,color:type==='backyard'?'#263848':'#d1ddf1',align:'center',weight:800});
-    return {index,progress,duration};
+    return {index,progress,duration,alignment:timeline?.source||'none',activeWord:timed?.activeWord??-1};
   }
   global.StudioDraw={render,W,H};
 })(window);

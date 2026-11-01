@@ -32,3 +32,7 @@ Sen bu depodaki çalışan video stüdyosunu geliştiriyorsun. **Önce sistemi �
 ## Bir sonraki Claude görevi
 
 "Projeyi çalıştır, dört Canvas stilini MP4 olarak örnekle, 9:16 kaliteyi doğrula; ardından sahne bazlı düzenleyici ve ses-kelime zamanlaması ekle. Mevcut paneli bozma. Tam test raporu, ücretsiz/ücretli bağımlılıklar listesi ve GitHub PR ile bitir."
+
+
+## v0.2: 2026-11-02 kontrolü
+Yeni **zorunlu** okuma: `docs/CLAUDE_CODE_HANDOFF.md`. Ortak saat `public/timeline.js`; ElevenLabs gerçek kelime hizalaması, diğer durumlarda tahmin etiketi. `scripts/quality.py` her render için contact sheet ve teknik rapor üretir. Görsel AI değerlendirmesi hâlâ yapılmıyor. Tekrarlanabilir geliştirme akışı için `.claude/skills/video-studio/SKILL.md` kullan. Başlangıç görevi: P0 testleri, ardından storyboard/onay kapıları.

@@ -40,6 +40,14 @@ try:
     assert file.exists() and file.stat().st_size>10_000
     info=json.loads(subprocess.check_output(['ffprobe','-v','quiet','-print_format','json','-show_streams',str(file)]))
     assert any(s.get('codec_type')=='video' for s in info['streams'])
+    timeline=json.loads((ROOT/'output'/f"{video['id']}.timeline.json").read_text())
+    quality=json.loads((ROOT/'output'/f"{video['id']}.quality.json").read_text())
+    assert timeline['source']=='estimated' and timeline['scenes']
+    assert quality['status']=='pass',quality
+    assert (ROOT/'output'/f"{video['id']}.contact.jpg").exists()
+    assert req('/api/videos/'+video['id']+'/timeline')['duration'] >= 8
+    assert req('/api/videos/'+video['id']+'/quality')['status']=='pass'
+    assert opener.open(url+'/api/videos/'+video['id']+'/contact').headers.get('Content-Type')=='image/jpeg'
     print('SMOKE PASS:',file, 'bytes',file.stat().st_size)
 finally:
     server.terminate()

@@ -32,3 +32,13 @@
 ## Yayın güvenlik ilkesi
 
 `planned` = takvim kaydıdır. API platformun olumlu yanıtını ve medya ID'sini doğrulamadan `published` yapılmaz. İşler yeniden çalıştırıldığında daha önce yayımlanan hesaplara aynı gönderi ikinci kez gönderilmez.
+
+
+## v0.2 ilk teslim — 2026-11-02
+- [x] Paylaşılan scene/word timeline: `public/timeline.js`; Canvas önizleme ve MP4 aynı fonksiyonla zamanlanır.
+- [x] ElevenLabs `/with-timestamps` çıktısında kelime zamanı; eSpeak için ölçülmüş olduğu iddia edilmeyen tahmini zamanlama.
+- [x] Determinism SHA, MP4/ses/format kontrolleri, boş kare örneklemesi, contact sheet JPG, JSON kalite raporu.
+- [x] Panelde rapor ve görsel erişimi.
+- [ ] AI görsel eleştirmen, gerçek beat onayı ve render öncesi storyboard henüz yok.
+- [ ] Üretim yayın servisi hâlâ devre dışı.
+- [ ] `docs/CLAUDE_CODE_HANDOFF.md` Claude Code için ayrıntılı görev paketidir.

@@ -5,6 +5,9 @@ Never publishes to any social network.
 """
 from __future__ import annotations
 import argparse
+import base64
+import re
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -31,27 +34,42 @@ def probe_duration(filename: Path) -> float:
         return 0.0
 
 
+def word_alignment(text: str, payload: dict):
+    """Convert ElevenLabs original-text character timing to word spans; reject mismatches."""
+    alignment = payload.get("alignment") or {}
+    chars = alignment.get("characters") or []
+    starts = alignment.get("character_start_times_seconds") or []
+    ends = alignment.get("character_end_times_seconds") or []
+    if len(chars) != len(starts) or len(chars) != len(ends) or "".join(chars) != text:
+        return None
+    words = []
+    for match in re.finditer(r"[\w]+(?:[’\x27-][\w]+)*", text, flags=re.UNICODE):
+        i,j=match.span()
+        words.append({"text":match.group(),"start":float(starts[i]),"end":float(ends[j-1])})
+    return words
+
 def tts(text: str, folder: Path):
     """Produce voice.wav. ElevenLabs if configured; espeak fallback; never logs credentials."""
     voice = folder / "voice.wav"
     api_key = os.environ.get("ELEVENLABS_API_KEY", "")
     voice_id = os.environ.get("ELEVENLABS_VOICE_ID", "")
     if api_key and voice_id:
-        url = "https://api.elevenlabs.io/v1/text-to-speech/" + voice_id
+        url = "https://api.elevenlabs.io/v1/text-to-speech/" + voice_id + "/with-timestamps"
         body = json.dumps({"text":text, "model_id":"eleven_multilingual_v2", "voice_settings":{"stability":0.55,"similarity_boost":0.75}}).encode()
-        req = urllib.request.Request(url, data=body, headers={"xi-api-key":api_key,"Content-Type":"application/json", "Accept":"audio/mpeg"}, method="POST")
+        req = urllib.request.Request(url, data=body, headers={"xi-api-key":api_key,"Content-Type":"application/json", "Accept":"application/json"}, method="POST")
         try:
-            with urllib.request.urlopen(req, timeout=60) as response:
-                audio = folder / "elevenlabs.mp3"
-                audio.write_bytes(response.read())
+            with urllib.request.urlopen(req, timeout=120) as response:
+                result = json.load(response)
+            audio = folder / "elevenlabs.mp3"
+            audio.write_bytes(base64.b64decode(result["audio_base64"],validate=True))
             command(["ffmpeg", "-y", "-v", "error", "-i", str(audio), "-ar", "44100", "-ac", "1", str(voice)])
-            return voice, "elevenlabs"
+            return voice, "elevenlabs", word_alignment(text,result)
         except (urllib.error.URLError, subprocess.CalledProcessError) as exc:
             raise RuntimeError("ElevenLabs seslendirme başarısız. Anahtar, limit ve ses kimliğini kontrol et.") from exc
     if shutil.which("espeak"):
         command(["espeak", "-v", "tr", "-s", "170", "-w", str(voice), text])
-        return voice, "espeak"
-    return None, "silent"
+        return voice, "espeak", None
+    return None, "silent", None
 
 
 def make_video(story: dict, port: int, token: str, fps: int = 12, browser_bin: str | None = None):
@@ -63,7 +81,7 @@ def make_video(story: dict, port: int, token: str, fps: int = 12, browser_bin: s
     video_id = story['id']
     with tempfile.TemporaryDirectory(prefix="kulaksiz-video-") as tmp:
         work = Path(tmp)
-        voice, voice_engine = tts(story['script'], work)
+        voice, voice_engine, word_timings = tts(story['script'], work)
         audio_length = probe_duration(voice) if voice else 0
         duration = min(95, max(8, float(story['duration']), audio_length + 0.35))
         frames = round(fps * duration)
@@ -80,14 +98,28 @@ def make_video(story: dict, port: int, token: str, fps: int = 12, browser_bin: s
             browser=p.chromium.launch(**options)
             page=browser.new_page(viewport={"width":540,"height":960},device_scale_factor=1)
             page.set_content('<html><body style="margin:0"><canvas id="screen" width="540" height="960"></canvas></body></html>')
+            page.add_script_tag(content=(ROOT / 'public' / 'timeline.js').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT / 'public' / 'draw.js').read_text(encoding='utf-8'))
+            built_timeline = page.evaluate("args => window.StudioTimeline.build(args.story,{duration:args.duration,wordTimings:args.words})", {'story':preview_story,'duration':duration,'words':word_timings})
+            preview_story['timeline']=built_timeline
+            (OUT/(video_id+'.timeline.json')).write_text(json.dumps(built_timeline,ensure_ascii=False,indent=2),encoding='utf8')
             page.evaluate("story => window.videoData = story", preview_story)
             # Renderer is synchronous. Capture exact timeline, not real-time; reproducible frames.
+            frame_paths=[]
             for i in range(frames):
                 page.evaluate("seconds => StudioDraw.render(document.getElementById('screen'), window.videoData, seconds)", i/fps)
-                page.locator("#screen").screenshot(path=str(work/f"frame_{i:05d}.png"),timeout=30000)
+                filename=work/f"frame_{i:05d}.png"
+                page.locator("#screen").screenshot(path=str(filename),timeout=30000)
+                frame_paths.append(filename)
                 if i and i % max(1,int(fps*5))==0:
                     print(f"  {i}/{frames} kare", flush=True)
+            # Render an arbitrary sample twice; exact repeatability is the seek(t) contract.
+            probe_t=min(duration-.001,max(0,duration*.35))
+            page.evaluate("seconds => StudioDraw.render(document.getElementById('screen'), window.videoData, seconds)",probe_t)
+            hash_a=hashlib.sha256(page.locator('#screen').screenshot()).digest()
+            page.evaluate("seconds => StudioDraw.render(document.getElementById('screen'), window.videoData, seconds)",probe_t)
+            hash_b=hashlib.sha256(page.locator('#screen').screenshot()).digest()
+            deterministic=hash_a==hash_b
             browser.close()
         target=OUT/(video_id+'.mp4')
         temp_mp4=OUT/(video_id+'.partial.mp4')
@@ -100,7 +132,12 @@ def make_video(story: dict, port: int, token: str, fps: int = 12, browser_bin: s
         command(ff)
         if temp_mp4.stat().st_size<10000: raise RuntimeError('MP4 beklenenden küçük.')
         temp_mp4.replace(target)
-        (OUT/(video_id+'.json')).write_text(json.dumps({"duration":duration,"fps":fps,"voice_engine":voice_engine,"file":target.name},ensure_ascii=False,indent=2),encoding='utf8')
+        # Technical QA generates a contact sheet + report; visual aesthetics still need review.
+        from quality import check_video
+        quality=check_video(target,duration,fps,voice is not None,frame_paths,work,OUT,video_id,
+                            deterministic,built_timeline['source'])
+        (OUT/(video_id+'.json')).write_text(json.dumps({"duration":duration,"fps":fps,"voice_engine":voice_engine,
+            "word_alignment":built_timeline['source'],"quality_status":quality['status'],"file":target.name},ensure_ascii=False,indent=2),encoding='utf8')
         print(f"OK: {target} ({target.stat().st_size} bytes)", flush=True)
         return target
 

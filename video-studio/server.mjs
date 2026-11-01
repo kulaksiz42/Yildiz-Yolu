@@ -36,7 +36,7 @@ function authed(req) {
   return crypto.timingSafeEqual(Buffer.from(mac),Buffer.from(signed(until)));
 }
 const safeStatic = (res,name) => {
-  const allowed=new Map([['/','index.html'],['/index.html','index.html'],['/app.js','app.js'],['/style.css','style.css'],['/draw.js','draw.js'],['/preview.js','preview.js'],['/preview.html','preview.html'],]);
+  const allowed=new Map([['/','index.html'],['/index.html','index.html'],['/app.js','app.js'],['/style.css','style.css'],['/draw.js','draw.js'],['/timeline.js','timeline.js'],['/preview.js','preview.js'],['/preview.html','preview.html'],]);
   if(!allowed.has(name))return json(res,404,{error:'Bulunamadı'});
   const target=path.join(PUBLIC,allowed.get(name));
   const ext=path.extname(target);
@@ -94,7 +94,7 @@ const server=http.createServer(async(req,res)=>{
   // Auth for all content, including previews and MP4. Only renderer receives a short-lived private server key.
   const internal=(p==='/api/render-data') && url.searchParams.get('key')===INTERNAL_KEY && req.socket.remoteAddress?.includes('127.0.0.1');
   // The login page, stylesheet and login JavaScript must be readable before authentication.
-  if(!authed(req)&&!internal&&!['/','/index.html','/app.js','/style.css','/draw.js'].includes(p))return json(res,401,{error:'Giriş gerekli.'});
+  if(!authed(req)&&!internal&&!['/','/index.html','/app.js','/style.css','/draw.js','/timeline.js'].includes(p))return json(res,401,{error:'Giriş gerekli.'});
   if(req.method==='POST'&&p==='/api/logout'){
     res.setHeader('Set-Cookie','studio_session=; HttpOnly; Path=/; SameSite=Strict; Max-Age=0');return json(res,200,{ok:true});
   }
@@ -108,7 +108,7 @@ const server=http.createServer(async(req,res)=>{
     const id=url.searchParams.get('id');const item=videos.find(v=>v.id===id);
     return item?json(res,200,{video:item}):json(res,404,{error:'Bulunamadı'});
   }
-  const m=p.match(/^\/api\/videos\/([\w-]{36})(?:\/(render|file))?$/);
+  const m=p.match(/^\/api\/videos\/([\w-]{36})(?:\/(render|file|timeline|quality|contact))?$/);
   if(m && safeId(m[1])){
     const id=m[1],item=videos.find(v=>v.id===id);if(!item)return json(res,404,{error:'Video bulunamadı.'});
     if(req.method==='PATCH'&&!m[2]){
@@ -120,6 +120,13 @@ const server=http.createServer(async(req,res)=>{
       try{renderStory(id);return json(res,202,{ok:true,message:'Render başlatıldı.'});}
       catch(e){return json(res,409,{error:e.message});}
     }
+    if(req.method==='GET'&&['timeline','quality','contact'].includes(m[2])) {
+      if(item.render_status!=='ready')return json(res,404,{error:'Video hazır değil.'});
+      const target=path.join(OUT,id+({timeline:'.timeline.json',quality:'.quality.json',contact:'.contact.jpg'}[m[2]]));
+      if(!fs.existsSync(target))return json(res,404,{error:'Rapor bulunamadı.'});
+      const mime=m[2]==='contact'?'image/jpeg':'application/json; charset=utf-8';
+      return respond(res,200,fs.readFileSync(target),{'Content-Type':mime});
+    }
     if(req.method==='GET'&&m[2]==='file'){
       if(item.render_status!=='ready'||!item.file)return json(res,404,{error:'Dosya hazır değil.'});
       const filepath=path.join(OUT,id+'.mp4');if(!fs.existsSync(filepath))return json(res,404,{error:'Dosya bulunamadı.'});
@@ -128,7 +135,7 @@ const server=http.createServer(async(req,res)=>{
       return fs.createReadStream(filepath).pipe(res);
     }
   }
-  if(req.method==='GET'&&['/','/index.html','/app.js','/draw.js','/preview.js','/style.css','/preview.html'].includes(p))return safeStatic(res,p);
+  if(req.method==='GET'&&['/','/index.html','/app.js','/draw.js','/timeline.js','/preview.js','/style.css','/preview.html'].includes(p))return safeStatic(res,p);
   return json(res,404,{error:'Yol bulunamadı.'});
 });
 server.listen(PORT,HOST,()=>console.log(`Video Studio: http://${HOST}:${PORT} (şifre korumalı, yayın API'leri kapalı)`));
