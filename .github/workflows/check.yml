@@ -21,6 +21,8 @@ jobs:
         run: |
           node --check assets/rig/bridge.js
           python tests/test_rig_assets.py
+      - name: Audit both GLB skeletons and local Three.js runtime
+        run: node tests/test_dual_rig.js
       - name: Build standalone HTML
         run: python3 build.py
       - name: Ensure generated HTML is committed
