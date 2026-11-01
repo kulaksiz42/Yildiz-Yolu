@@ -4,6 +4,11 @@ Mobil tarayıcı için özgün, sinematik futbolcu kariyeri oyunu.
 
 ## Proje durumu
 
+## Oynanış v0.3
+
+Joystick yönü, gerçek pas, dinamik savunmacılar, top kapma, kontra atak, frikik ve farklı şut sonuçları GitHub'daki canlı sürüme eklendi. Yerel Chromium 2D yedek kipinde 23/23 test geçti; **gerçek iPhone Safari/WebGL henüz test edilmedi.** Ayrıntılar: [Oynanış v0.3 raporu](docs/GAMEPLAY_V03.md).
+
+
 **Mevcut sürüm: V2 GitHub Geliştirme 001.** Temel prototip üzerine kritik kontrol ve fizik düzeltmeleri uygulandı.
 
 - Bu kaynaklar **Claude Checkpoint 001 (v0.2.1) değildir**. Checkpoint 001 ZIP'i henüz bu depoya aktarılmadı.
