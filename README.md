@@ -4,13 +4,13 @@ Mobil tarayıcı için özgün, sinematik futbolcu kariyeri oyunu.
 
 ## Proje durumu
 
-**GitHub'a aktarılan başlangıç: V2 sinematik temel prototip.**
+**Mevcut sürüm: V2 GitHub Geliştirme 001.** Temel prototip üzerine kritik kontrol ve fizik düzeltmeleri uygulandı.
 
 - Bu kaynaklar **Claude Checkpoint 001 (v0.2.1) değildir**. Checkpoint 001 ZIP'i henüz bu depoya aktarılmadı.
 - Checkpoint 002 geliştirmeleri kaynak olarak teslim alınamadığı için bu depoda yok.
 - V2, saf **WebGL1 + JavaScript** kullanır; Three.js veya harici CDN gerektirmez. WebGL kullanılamıyorsa 2D yedek görünüm vardır.
 - Karakter oluşturma, sinematik görüşme, temel maç pozisyonları ve yerel kayıt prototip düzeyindedir.
-- Gerçek iPhone Safari performansı **doğrulanmadı**; bu depo üretim sürümü değildir.
+- [Canlı oyunu aç](https://kulaksiz42.github.io/Yildiz-Yolu/). GitHub Pages dağıtımı yapılandırılmıştır; canlıda hangi commit'in göründüğü bu araç ortamından doğrulanamadı.\n- Gerçek iPhone Safari ve WebGL görsel performansı **doğrulanmadı**; bu depo üretim sürümü değildir.\n- Değişiklikler ve test sınırları için `docs/CHANGELOG.md` dosyasına bak.
 
 ## Dosyalar
 
