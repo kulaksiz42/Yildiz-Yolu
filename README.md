@@ -2,15 +2,15 @@
 
 Mobil tarayıcıda oynanabilen, özgün bir sinematik futbolcu kariyeri prototipi.
 
-**[Canlı oyunu aç](https://kulaksiz42.github.io/Yildiz-Yolu/)** · **Güncel oyun sürümü: v0.7** · [Kariyer hikâyesi entegrasyonu](docs/CAREER_V07.md)
+**[Canlı oyunu aç](https://kulaksiz42.github.io/Yildiz-Yolu/)** · **Güncel oyun sürümü: v0.8 (3D model beta)** · [Gerçek GLB entegrasyonu](docs/RIG_V08.md)
 
-## Oynanış v0.7
+## Oynanış v0.8
 
 - Altı aşamalı oyuncu oluşturma: ad/lakap, ülke, mevki, görünüm/güçlü ayak, karakter ve kulüp
 - Üç bağımsız kariyer kayıt yuvası ve eski yerel kaydı koruyarak içeri aktarma
 - Kesintisiz pas ve geri pas, seçilebilir pas hedefi, takım arkadaşları ve hareketli savunmacılar
 - Şut çeşitleri: sert, plase, aşırtma; serbest vuruş, top kapma, kontra atak
-- Dinamik saha radarı, anatomik şekilli 3D futbolcular, eklem tabanlı koşu/şut/kaleci pozları ve daha yakın kamera; WebGL yoksa 2D yedek görünüm
+- Dinamik saha radarı, varsayılan prosedürel 3D maç modu ve **isteğe bağlı gerçek 22 kemikli GLB futbolcu modu** (6 kemik animasyonu; geri dönüş düğmesi); WebGL yoksa 2D yedek görünüm
 - Ülkeye göre başlangıç hikâyesi, hoca konuşmaları ve **16 isteğe bağlı, kayıtlı sonuçları olan kariyer olayı**
 
 **Sınır:** Bu hâlâ prototiptir. Yüksek kaliteli GLB rig'li futbolcu animasyonları, gelişmiş top fiziği, uzun maç/kariyer sistemleri ve gerçek Safari performans testleri henüz tamamlanmadı. Ülke/lig adlarının bir kısmı kurgusaldır. Neo Star Soccer veya FIFA'nın kodu, görsel varlığı ya da marka materyalleri oyuna dahil edilmedi.
@@ -28,6 +28,7 @@ Mobil tarayıcıda oynanabilen, özgün bir sinematik futbolcu kariyeri prototip
 | `.github/workflows/mobile-smoke.yml` | Otomatik tarayıcı testi |
 | `docs/GAMEPLAY_V06.md` | v0.6 anatomik 3D modeller ve sınırlar |
 | `docs/CAREER_V07.md` | v0.7 ülke/mevki hikâyeleri, veri kaynağı ve testler |
+| `docs/RIG_V08.md` | v0.8 gerçek GLB maç entegrasyonu, test sınırları ve lisanslar |
 | `docs/THIRD_PARTY_SOURCE_REVIEW.md` | Neo Star Soccer yayın paketi ve lisans incelemesi |
 
 ## Geliştirme
