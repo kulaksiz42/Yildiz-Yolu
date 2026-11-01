@@ -1,0 +1,28 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Yıldız Yolu | İki Gerçek 3D Futbolcu</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#eaf6ee;background:#0a1722}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}
+canvas{display:block;width:100vw;height:100dvh;touch-action:none}
+header{position:fixed;top:env(safe-area-inset-top,0);left:0;right:0;padding:14px 15px;display:flex;justify-content:space-between;background:linear-gradient(#081c21da,transparent);pointer-events:none;gap:12px}
+#stats{font-size:11px;color:#cff1da;text-align:right;max-width:55%}
+#labels{position:fixed;left:8%;right:8%;top:25%;display:flex;justify-content:space-around;pointer-events:none;font-weight:750;text-align:center;font-size:12px;text-shadow:0 2px 5px black}
+footer{position:fixed;left:0;right:0;bottom:0;padding:12px max(12px,env(safe-area-inset-left)) max(15px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-right));background:#091e20ec;display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap}
+button,select{min-height:43px;touch-action:manipulation;border-radius:10px;border:1px solid #629581;background:#1a443b;color:#f3f8f5;font-size:13px;font-weight:700;padding:8px 12px}
+button.active{background:#c8f67d;color:#142b22}
+#feedback{position:fixed;bottom:120px;left:12px;right:12px;text-align:center;color:#d6f4e1;font-size:12px;pointer-events:none}
+a{color:#d3e9b9}
+</style>
+<script type="importmap">{"imports":{"three":"../rigs/vendor/three.module.js","three/addons/":"../rigs/vendor/addons/"}}</script>
+</head><body><canvas id="lab" aria-label="3D futbolcu karşılaştırması"></canvas>
+<header><b>YILDIZ YOLU · 3D LAB</b><span id="stats">Modeller yükleniyor…</span></header>
+<div id="labels"><span>CLAUDE · 22 KEMİK<br>Hafif oyuncu</span><span>KIMI · 53 KEMİK<br>Yakın plan oyuncu</span></div>
+<p id="feedback">İki model, tek WebGL sahnesi · Parmağınla döndür, iki parmakla yakınlaş</p>
+<footer>
+<button id="idle" class="active">Bekle</button><button id="run">Koş</button><button id="pass">Pas</button><button id="shoot">Şut</button>
+<button id="red">Kırmızı</button><button id="blue">Mavi</button>
+<select id="quality" aria-label="Grafik kalitesi"><option value="0.75">Performans</option><option value="1" selected>Dengeli</option><option value="1.4">Kalite</option></select>
+<a href="../?rig3d=1">Maçta dene</a>
+</footer>
+<script type="module" src="./rig-compare.mjs"></script></body></html>
