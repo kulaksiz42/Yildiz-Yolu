@@ -548,7 +548,7 @@ for(let k=0;k<4;k++){let side=k%2?-1:1,z=k<2?-39:39;bx(side*46,10,z,.65,20,.65,'
 function office(t){bx(0,-.15,0,17,.28,16,'#544636');bx(0,5,-8,17,10,.3,'#27394a');bx(-8,5,0,.3,10,16,'#1c2937');bx(8,5,0,.3,10,16,'#172a3c');bx(0,5,8,17,10,.3,'#15232f');for(let x of [-4,0,4]){bx(x,5,-7.81,2.2,3.4,.09,'#2b607a');bx(x,5,-7.76,1.7,2.9,.09,career?.country==='tr'?'#5193a0':career?.country==='en'?'#4a6c89':'#c39c6a')}bx(0,1.25,-1,6,.24,2.5,'#4a352b');for(let x of [-2.5,2.5])bx(x,.65,-1,.3,1.25,1.7,'#59453b');bx(0,1.55,-1,.7,.25,.55,'#2e333c');bx(0,1.67,-1,.66,.05,.46,'#aaaeb4');bx(0,0,-5,5,.22,1.9,'#2c3540');footballer(-2,-3,'#ca9470','#26202a','#323b49','#161b29',t*.6,.95,.18,'kisa');footballer(2,-2,career?.skin||draft.skin,career?.hair||draft.hair,career?.kit||draft.kit,'#eef1e9',t*.6,.98,-.18,career?.hairStyle||draft.hairStyle);for(let x of [-4,4]){bx(x,.2,3,1.5,.3,1.3,'#243342');bx(x,.8,3.8,1.5,1.1,.26,'#28394a')}bx(0,3.4,-7.6,3.9,1.35,.18,'#dbb55b');bx(0,3.4,-7.5,3.35,1.02,.2,'#223c43')}
 function displayStage(t){bx(0,-.2,0,11,.35,11,'#17252e');bx(0,.05,0,4,.28,4,'#7a6450');bx(0,-.06,0,4.9,.09,4.9,'#f0c975');for(let x of [-5,5])bx(x,3,-2,.15,6,.15,'#7e8da0');footballer(0,0,draft.skin,draft.hair,draft.kit,'#172a40',Math.sin(t)*.3,1.45,Math.sin(t*.45)*.35,draft.hairStyle)}
 function resize(){let w=innerWidth,h=innerHeight,dp=Math.min(devicePixelRatio||1,1.6);if(c.width!==Math.round(w*dp)||c.height!==Math.round(h*dp)){c.width=Math.round(w*dp);c.height=Math.round(h*dp)}gl.viewport(0,0,c.width,c.height);canvasW=w;canvasH=h}
-function render(ts){requestAnimationFrame(render);if(!renderOK)return;resize();let t=ts*.001,eye,target,fov=55;if(screen==='create'){eye=[Math.sin(t*.3)*5,2.9,7];target=[0,1.4,0];fov=48}else if(screen==='story'){eye=[0,3.35,9.4];target=[0,1.45,-2.6];fov=54}else if(screen==='hub'){eye=[10,14,-35];target=[0,1,12];fov=54}else if(screen==='match'&&match){let p=match.flight?.kind==='pass'?match.ball:match.player;
+function render(ts){requestAnimationFrame(render);if(window.YYRigEnabled)return;if(!renderOK)return;resize();let t=ts*.001,eye,target,fov=55;if(screen==='create'){eye=[Math.sin(t*.3)*5,2.9,7];target=[0,1.4,0];fov=48}else if(screen==='story'){eye=[0,3.35,9.4];target=[0,1.45,-2.6];fov=54}else if(screen==='hub'){eye=[10,14,-35];target=[0,1,12];fov=54}else if(screen==='match'&&match){let p=match.flight?.kind==='pass'?match.ball:match.player;
  const dt=cameraRig.last?Math.min(.05,(ts-cameraRig.last)/1000):.016;cameraRig.last=ts;
  if(!cameraRig.ready){cameraRig.x=p.x;cameraRig.z=p.z;cameraRig.ready=true}
  const a=1-Math.exp(-3.3*dt);cameraRig.x+=(p.x-cameraRig.x)*a;cameraRig.z+=(p.z-cameraRig.z)*a;
@@ -590,6 +590,15 @@ if(screen==='title'){drawAvatar(g,ox+w*.09,h*.57,'#d6a16c','#26262a','#efc762',1
 else{drawAvatar(g,ox,h*.59,career?.skin||draft.skin,career?.hair||draft.hair,'#eac363',1.35)}
 function drawAvatar(ctx,x,y,skin,hair,shirt,scale){ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(0,94,26,8,0,0,7);ctx.fill();ctx.strokeStyle='#dad7d0';ctx.lineWidth=13;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-11,30);ctx.lineTo(-14,88);ctx.moveTo(11,30);ctx.lineTo(14,88);ctx.stroke();ctx.fillStyle=shirt;ctx.beginPath();ctx.moveTo(-28,-45);ctx.lineTo(28,-45);ctx.lineTo(22,32);ctx.lineTo(-22,32);ctx.closePath();ctx.fill();ctx.strokeStyle=skin;ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(-27,-36);ctx.lineTo(-38,12);ctx.moveTo(27,-36);ctx.lineTo(38,12);ctx.stroke();ctx.fillStyle=skin;ctx.beginPath();ctx.ellipse(0,-64,19,23,0,0,7);ctx.fill();ctx.fillStyle=hair;ctx.beginPath();ctx.ellipse(0,-79,20,11,0,Math.PI,Math.PI*2);ctx.fill();ctx.restore()}}
 
+/* 3D animated footballers are an optional, read-only view of game state.
+   GLB loader does not mutate career/match or affect original gameplay. */
+window.YYRigEnabled=false;
+window.YYRigNotify=(message)=>toast(message);
+window.YYRigSnapshot=()=>{
+ const m=match;
+ return {screen,match:m,career,
+  target:m&&m.ballOwner==='me'&&m.mode!=='defend'&&!m.flight?findPassReceiver(false):null};
+};
 /* Saniye cinsinden fizik güncellemesi: 30 / 60 / 120 Hz davranışı aynı. */
 function advanceFlight(dt){
  if(!match||!match.flight||screen!=='match')return;
