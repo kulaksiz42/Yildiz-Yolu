@@ -15,6 +15,10 @@ Mobil tarayıcıda oynanabilen, özgün bir sinematik futbolcu kariyeri prototip
 
 **Sınır:** Bu hâlâ prototiptir. Yüksek kaliteli GLB rig'li futbolcu animasyonları, gelişmiş top fiziği, uzun maç/kariyer sistemleri ve gerçek Safari performans testleri henüz tamamlanmadı. Ülke/lig adlarının bir kısmı kurgusaldır. Neo Star Soccer veya FIFA'nın kodu, görsel varlığı ya da marka materyalleri oyuna dahil edilmedi.
 
+## İskeletli 3D futbolcu deneyi
+
+İki gerçek GLB modelini **tek Three.js sahnesinde** karşılaştır: [Kimi ve Claude 3D Laboratuvarı](labs/rig-compare.html). Yeni motorla maçı isteğe bağlı denemek için [3D GLB modu](https://kulaksiz42.github.io/Yildiz-Yolu/?rig3d=1). Varsayılan v0.7 oyun korunur. [Kurulum, test, lisans ve sınırlar](docs/DUAL_GLB_3D_EXPERIMENT.md).
+
 ## Proje dosyaları
 
 | Yol | Görev |
