@@ -2,18 +2,18 @@
 
 Mobil tarayıcıda oynanabilen, özgün bir sinematik futbolcu kariyeri prototipi.
 
-**[Canlı oyunu aç](https://kulaksiz42.github.io/Yildiz-Yolu/)** · **Güncel oyun sürümü: v0.5** · [Son sürüm raporu](docs/GAMEPLAY_V05.md)
+**[Canlı oyunu aç](https://kulaksiz42.github.io/Yildiz-Yolu/)** · **Güncel oyun sürümü: v0.6** · [3D futbolcu ve test raporu](docs/GAMEPLAY_V06.md)
 
-## Oynanış v0.5
+## Oynanış v0.6
 
 - Altı aşamalı oyuncu oluşturma: ad/lakap, ülke, mevki, görünüm/güçlü ayak, karakter ve kulüp
 - Üç bağımsız kariyer kayıt yuvası ve eski yerel kaydı koruyarak içeri aktarma
 - Kesintisiz pas ve geri pas, seçilebilir pas hedefi, takım arkadaşları ve hareketli savunmacılar
 - Şut çeşitleri: sert, plase, aşırtma; serbest vuruş, top kapma, kontra atak
-- Dinamik saha radarı ve 3D maç anları, WebGL yoksa 2D yedek görünüm
+- Dinamik saha radarı, anatomik şekilli 3D futbolcular, eklem tabanlı koşu/şut/kaleci pozları ve daha yakın kamera; WebGL yoksa 2D yedek görünüm
 - Ülkeye göre başlangıç hikâyesi ve hoca konuşmaları
 
-**Sınır:** Bu hâlâ prototiptir. Yüksek kaliteli rig'li futbolcu animasyonları, gelişmiş top fiziği, uzun maç/kariyer sistemleri ve gerçek Safari performans testleri henüz tamamlanmadı. Ülke/lig adlarının bir kısmı kurgusaldır. Neo Star Soccer veya FIFA'nın kodu, görsel varlığı ya da marka materyalleri oyuna dahil edilmedi.
+**Sınır:** Bu hâlâ prototiptir. Yüksek kaliteli GLB rig'li futbolcu animasyonları, gelişmiş top fiziği, uzun maç/kariyer sistemleri ve gerçek Safari performans testleri henüz tamamlanmadı. Ülke/lig adlarının bir kısmı kurgusaldır. Neo Star Soccer veya FIFA'nın kodu, görsel varlığı ya da marka materyalleri oyuna dahil edilmedi.
 
 ## Proje dosyaları
 
@@ -26,7 +26,7 @@ Mobil tarayıcıda oynanabilen, özgün bir sinematik futbolcu kariyeri prototip
 | `tests/smoke.py` | GitHub Actions Chromium mobil smoke testi |
 | `.github/workflows/check.yml` | Sözdizimi ve build tutarlılığı |
 | `.github/workflows/mobile-smoke.yml` | Otomatik tarayıcı testi |
-| `docs/GAMEPLAY_V05.md` | v0.5 kapsamı, test sonuçları ve sınırlar |
+| `docs/GAMEPLAY_V06.md` | v0.6 anatomik 3D modeller, test sonuçları ve sınırlar |
 | `docs/THIRD_PARTY_SOURCE_REVIEW.md` | Neo Star Soccer yayın paketi ve lisans incelemesi |
 
 ## Geliştirme
@@ -44,6 +44,6 @@ Yeni kariyerler `yildizyolu_slots_v1` anahtarında üç bağımsız yuva tutar. 
 
 ## Üçüncü taraf kodlar
 
-Neo Star Soccer GitHub deposu derlenmiş yayın dosyalarını barındırır. Açık lisans sunulmadığından oradaki JS/CSS paketleri veya oyun varlıkları kullanılmadı. Kullanıcının bu depoya eklediği `neostarsoccer-site-main.zip` dosyası oyun derlemesinin parçası değildir; kamuya açık yeniden dağıtımı izin bakımından ayrıca değerlendirilmelidir.
+Neo Star Soccer GitHub deposu derlenmiş yayın dosyalarını barındırır. Açık lisans sunulmadığından oradaki JS/CSS paketleri veya oyun varlıkları kullanılmadı. Üçüncü taraf `neostarsoccer-site-main.zip` güncel dal üzerinden kaldırılmıştır. Eski Git commit geçmişinden temizleme ayrıca yapılmalıdır.
 
 Bu proje FIFA ve Neo Star Soccer ile bağlantılı değildir.
