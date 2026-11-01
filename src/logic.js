@@ -331,6 +331,7 @@ window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 const I=()=>[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
 const mul=(a,b)=>{let r=new Array(16).fill(0);for(let j=0;j<4;j++)for(let i=0;i<4;i++)for(let k=0;k<4;k++)r[i+j*4]+=a[i+k*4]*b[k+j*4];return r};
 const tr=(x,y,z)=>{let m=I();m[12]=x;m[13]=y;m[14]=z;return m};const sc=(x,y,z)=>{let m=I();m[0]=x;m[5]=y;m[10]=z;return m};const ry=a=>{let m=I();m[0]=Math.cos(a);m[2]=-Math.sin(a);m[8]=Math.sin(a);m[10]=Math.cos(a);return m};const rz=a=>{let m=I();m[0]=Math.cos(a);m[1]=Math.sin(a);m[4]=-Math.sin(a);m[5]=Math.cos(a);return m};
+const rx=a=>{let m=I();m[5]=Math.cos(a);m[6]=Math.sin(a);m[9]=-Math.sin(a);m[10]=Math.cos(a);return m};
 const sub=(a,b)=>a.map((x,i)=>x-b[i]),norm=v=>{let l=Math.hypot(...v)||1;return v.map(x=>x/l)},cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],dot=(a,b)=>a.reduce((t,x,i)=>t+x*b[i],0);
 const look=(eye,target)=>{let z=norm(sub(eye,target)),x=norm(cross(z,[0,1,0])),y=cross(x,z);return [x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1]};
 const persp=(fov,aspect,n,f)=>{let s=1/Math.tan(fov/2);return [s/aspect,0,0,0,0,s,0,0,0,0,(f+n)/(n-f),-1,0,0,2*f*n/(n-f),0]};
@@ -339,6 +340,29 @@ function hex(s){s=typeof s==='string'?s:'#ffffff';return [parseInt(s.slice(1,3),
 function makeGeo(v){let out=[],positions=v.vertices,normals=v.normals;for(let i=0;i<positions.length;i+=3)out.push(...positions.slice(i,i+3),...normals.slice(i,i+3));let b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(out),gl.STATIC_DRAW);return {buffer:b,count:out.length/6}}
 function cubeGeo(){let p=[],n=[],faces=[[[0,0,1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]],[[0,0,-1],[1,-1,-1],[-1,-1,-1],[-1,1,-1],[1,1,-1]],[[1,0,0],[1,-1,1],[1,-1,-1],[1,1,-1],[1,1,1]],[[-1,0,0],[-1,-1,-1],[-1,-1,1],[-1,1,1],[-1,1,-1]],[[0,1,0],[-1,1,1],[1,1,1],[1,1,-1],[-1,1,-1]],[[0,-1,0],[-1,-1,-1],[1,-1,-1],[1,-1,1],[-1,-1,1]]];for(let f of faces){for(let idx of [1,2,3,1,3,4]){p.push(...f[idx]);n.push(...f[0])}}return {vertices:p,normals:n}}
 function sphereGeo(){let p=[],n=[],rows=12,cols=16;function v(th,ph){let a=Math.sin(th)*Math.cos(ph),b=Math.cos(th),cc=Math.sin(th)*Math.sin(ph);return [a,b,cc]}for(let i=0;i<rows;i++)for(let j=0;j<cols;j++){let a=v(i*Math.PI/rows,j*Math.PI*2/cols),b=v((i+1)*Math.PI/rows,j*Math.PI*2/cols),cc=v((i+1)*Math.PI/rows,(j+1)*Math.PI*2/cols),d=v(i*Math.PI/rows,(j+1)*Math.PI*2/cols);for(let q of [a,b,cc,a,cc,d]){p.push(...q);n.push(...q)}}return {vertices:p,normals:n}}
+// Smooth anatomical surfaces. One reusable unit mesh per shape; animated by bone-space matrices.
+// Profiles use y from -1 to +1; changing dimensions never rebuilds GPU buffers.
+function latheGeo(profile,segments=12){
+ const vertices=[],normals=[];
+ for(let r=0;r<profile.length-1;r++){
+  const [y0,a0,b0]=profile[r], [y1,a1,b1]=profile[r+1];
+  for(let k=0;k<segments;k++){
+   const phi=2*Math.PI*k/segments,phi2=2*Math.PI*(k+1)/segments;
+   const vertex=(y,a,b,t)=>[Math.cos(t)*a,y,Math.sin(t)*b];
+   const p0=vertex(y0,a0,b0,phi),p1=vertex(y1,a1,b1,phi),p2=vertex(y1,a1,b1,phi2),p3=vertex(y0,a0,b0,phi2);
+   for(const triangle of [[p0,p1,p2],[p0,p2,p3]]){
+    let e1=sub(triangle[1],triangle[0]),e2=sub(triangle[2],triangle[0]);
+    let n=norm(cross(e1,e2));
+    for(const pt of triangle){
+     let nx=pt[0]/(Math.max(.05,a0)*Math.max(.05,a0)),nz=pt[2]/(Math.max(.05,b0)*Math.max(.05,b0));
+     const nn=norm([nx,Math.abs(n[1])>.6?n[1]*.33:0,nz]);
+     vertices.push(...pt);normals.push(...nn);
+    }
+   }
+  }
+ }
+ return {vertices,normals};
+}
 // Static audience batches: far fewer draw calls than one mesh per spectator.
 function crowdGeoGroups(){
  const base=cubeGeo(),palettes=[[],[],[],[]],normals=[[],[],[],[]];
@@ -363,45 +387,110 @@ function crowdGeoGroups(){
  }
  return palettes.map((vertices,i)=>({vertices,normals:normals[i]}));
 }
-if(gl){try{let vs=`attribute vec3 p;attribute vec3 n;uniform mat4 vp,m;varying vec3 nv;varying float dist;void main(){vec4 w=m*vec4(p,1.);gl_Position=vp*w;nv=mat3(m)*n;dist=length(w.xyz);}`,fs=`precision mediump float;varying vec3 nv;varying float dist;uniform vec3 color;void main(){float lite=max(dot(normalize(nv),normalize(vec3(-.6,1.0,.45))),0.0)*.58+.44;vec3 col=color*lite;float fog=clamp((dist-55.)/150.,0.,.58);gl_FragColor=vec4(mix(col,vec3(.052,.079,.12),fog),1.);}`;function compile(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}shader=gl.createProgram();gl.attachShader(shader,compile(gl.VERTEX_SHADER,vs));gl.attachShader(shader,compile(gl.FRAGMENT_SHADER,fs));gl.linkProgram(shader);if(!gl.getProgramParameter(shader,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(shader));gl.useProgram(shader);u={p:gl.getAttribLocation(shader,'p'),n:gl.getAttribLocation(shader,'n'),vp:gl.getUniformLocation(shader,'vp'),m:gl.getUniformLocation(shader,'m'),color:gl.getUniformLocation(shader,'color')};geo.box=makeGeo(cubeGeo());geo.ball=makeGeo(sphereGeo());crowdGeoGroups().forEach((q,i)=>geo['crowd'+i]=makeGeo(q));gl.enable(gl.DEPTH_TEST);gl.clearColor(.028,.053,.074,1)}catch(e){renderOK=false;console.error('WebGL engine failed',e)}}
+if(gl){try{let vs=`attribute vec3 p;attribute vec3 n;uniform mat4 vp,m;varying vec3 nv;varying float dist;void main(){vec4 w=m*vec4(p,1.);gl_Position=vp*w;nv=mat3(m)*n;dist=length(w.xyz);}`,fs=`precision mediump float;varying vec3 nv;varying float dist;uniform vec3 color;void main(){float lite=max(dot(normalize(nv),normalize(vec3(-.6,1.0,.45))),0.0)*.58+.44;vec3 col=color*lite;float fog=clamp((dist-55.)/150.,0.,.58);gl_FragColor=vec4(mix(col,vec3(.052,.079,.12),fog),1.);}`;function compile(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}shader=gl.createProgram();gl.attachShader(shader,compile(gl.VERTEX_SHADER,vs));gl.attachShader(shader,compile(gl.FRAGMENT_SHADER,fs));gl.linkProgram(shader);if(!gl.getProgramParameter(shader,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(shader));gl.useProgram(shader);u={p:gl.getAttribLocation(shader,'p'),n:gl.getAttribLocation(shader,'n'),vp:gl.getUniformLocation(shader,'vp'),m:gl.getUniformLocation(shader,'m'),color:gl.getUniformLocation(shader,'color')};geo.box=makeGeo(cubeGeo());geo.ball=makeGeo(sphereGeo());
+geo.torso=makeGeo(latheGeo([[-1,.65,.67],[-.66,.76,.77],[.05,.88,.86],[.65,1.05,.93],[1,.89,.77]]));
+geo.sleeve=makeGeo(latheGeo([[-1,.81,.81],[-.82,.92,.92],[.70,1,1],[1,.82,.82]]));
+geo.limb=makeGeo(latheGeo([[-1,.70,.70],[-.83,.96,.96],[-.24,1,1],[.52,.88,.88],[1,.74,.74]]));
+geo.sock=makeGeo(latheGeo([[-1,.87,.87],[-.7,1,1],[.72,.94,.94],[1,.80,.80]]));
+geo.hair=makeGeo(latheGeo([[-1,.73,.73],[-.40,.97,.93],[.16,1,1],[.65,.81,.85],[1,.35,.42]]));
+crowdGeoGroups().forEach((q,i)=>geo['crowd'+i]=makeGeo(q));gl.enable(gl.DEPTH_TEST);gl.clearColor(.028,.053,.074,1)}catch(e){renderOK=false;console.error('WebGL engine failed',e)}}
 function model(kind,x,y,z,w,h,d,color,angle=0,tilt=0){let g=geo[kind];if(!g)return;gl.bindBuffer(gl.ARRAY_BUFFER,g.buffer);gl.enableVertexAttribArray(u.p);gl.vertexAttribPointer(u.p,3,gl.FLOAT,false,24,0);gl.enableVertexAttribArray(u.n);gl.vertexAttribPointer(u.n,3,gl.FLOAT,false,24,12);let m=mul(mul(mul(tr(x,y,z),ry(angle)),rz(tilt)),sc(w/2,h/2,d/2));gl.uniformMatrix4fv(u.m,false,new Float32Array(m));gl.uniform3fv(u.color,new Float32Array(hex(color)));gl.drawArrays(gl.TRIANGLES,0,g.count)}
 const bx=(x,y,z,w,h,d,color,a=0)=>model('box',x,y,z,w,h,d,color,a),orb=(x,y,z,w,h,d,color)=>model('ball',x,y,z,w,h,d,color);
-function footballer(x,z,skin,hair,shirt,shorts,anim=0,scale=1,angle=0,style='kisa',pose='run'){
- // Procedural articulated player (no external rig): hip + swinging thighs/calves,
- // oppositely moving arms, torso twist, boots, hair and jersey trim.
- const activity=Math.abs(anim)>1e-5 ? 1 : .13;
- const stride=Math.sin(anim)*.23*activity,pace=Math.cos(anim)*.14*activity;
- const t=Math.sin(anim*.5)*.025*scale,py=pose==='dive'?.12*scale:0;
- const lean=pose==='dive'?.50:pose==='kick'?.11:0;
- bx(x,py+.54*scale,z,.42*scale,.42*scale,.33*scale,shorts,angle);
- // legs: thigh, lower leg, stockings, both boots
+// v0.6 anatomical player rig: 11 independently posed joint chains, boot volumes,
+// shaped jersey, realistic head scale and face/hair detail. No third-party character assets.
+const PLAYER_KIT_LIGHT='#e8f0ee', PLAYER_BOOT='#151b27';
+function shade(color,f){const v=hex(color);return '#'+v.map(c=>Math.round(clamp(c*f,0,1)*255).toString(16).padStart(2,'0')).join('')}
+function drawRigMesh(shape,transform,color){
+ const g=geo[shape];if(!g)return;
+ gl.bindBuffer(gl.ARRAY_BUFFER,g.buffer);
+ gl.enableVertexAttribArray(u.p);gl.vertexAttribPointer(u.p,3,gl.FLOAT,false,24,0);
+ gl.enableVertexAttribArray(u.n);gl.vertexAttribPointer(u.n,3,gl.FLOAT,false,24,12);
+ gl.uniformMatrix4fv(u.m,false,new Float32Array(transform));
+ gl.uniform3fv(u.color,new Float32Array(hex(color)));
+ gl.drawArrays(gl.TRIANGLES,0,g.count);
+}
+function segmentMatrix(base,a,b,radius){
+ const v=sub(b,a),length=Math.hypot(...v);
+ if(length<.00001)return null;
+ const yy=v.map(n=>n/length);
+ const xx=norm(cross(Math.abs(yy[2])>.93?[0,1,0]:[0,0,1],yy));
+ const zz=cross(xx,yy);
+ const orient=[xx[0],xx[1],xx[2],0,yy[0],yy[1],yy[2],0,zz[0],zz[1],zz[2],0,0,0,0,1];
+ const center=tr((a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2);
+ return mul(base,mul(center,mul(orient,sc(radius,length/2,radius))));
+}
+function footballer(x,z,skin,hair,shirt,shorts,anim=0,scale=1,angle=0,style='kisa',pose='run',lowDetail=false){
+ // Human proportions: head 0.26 m, shoulders 0.49 m, height ~1.84 m.
+ const kick=pose==='kick',dive=pose==='dive',movement=pose==='idle'?.09:pose==='kick'?.42:1;
+ const gait=Math.sin(anim*1.3),step=gait*.31*movement,arms=-step*.80;
+ const bend=dive?clamp((Math.sin(anim)+1)*.37+.32,.0,1):0;
+ const lean=dive?(-.95*bend):kick?-.12:Math.min(.10,.02+Math.abs(gait)*.035);
+ const hipRaise=dive?.24:.018+Math.abs(gait)*.012*movement;
+ const root=mul(tr(x,hipRaise,z),mul(ry(angle),mul(rz(lean),sc(scale,scale,scale))));
+ const piece=(kind,px,py,pz,w,h,d,color,rxA=0,rzA=0)=>{
+  drawRigMesh(kind,mul(root,mul(tr(px,py,pz),mul(rz(rzA),mul(rx(rxA),sc(w/2,h/2,d/2))))),color);
+ };
+ const limb=(shape,a,b,width,color)=>{let m=segmentMatrix(root,a,b,width);if(m)drawRigMesh(shape,m,color)};
+ const socks='#e2e9e6',shortShade=shade(shorts,.86);
+ if(lowDetail){
+  // Low-polygon match LOD: distant players retain their colors and running rhythm.
+  piece('torso',0,1.20,0,.69,.76,.39,shirt);
+  piece('torso',0,.84,0,.43,.21,.33,shorts);
+  for(const side of [-1,1]){
+   const stepZ=side*step;
+   limb('limb',[side*.17,.76,0],[side*.17,.10,stepZ],.118,socks);
+   limb('sleeve',[side*.40,1.42,0],[side*.49,.85,-side*arms],.104,skin);
+  }
+  piece('ball',0,1.76,0,.41,.49,.37,skin);
+  piece('ball',0,1.98,-.035,.40,.17,.37,hair);
+  return;
+ }
+ // Torso has broad chest, tapered waist, collar trim and sleeve geometry.
+ piece('torso',0,1.18,0,.72,.75,.40,shirt,Math.abs(gait)*.018);
+ piece('torso',0,.83,0,.43,.22,.34,shorts);
+ piece('ball',0,1.56,0,.19,.17,.20,skin);
+ piece('ball',0,1.58,.06,.23,.09,.19,PLAYER_KIT_LIGHT);
+ piece('ball',0,1.61,.07,.18,.075,.17,skin);
+ // Thin double stripes and chest crest, embedded against shaped jersey.
+ piece('ball',-.28,1.21,.14,.065,.43,.05,shade(shirt,1.38));
+ piece('ball',.28,1.21,.14,.065,.43,.05,shade(shirt,1.38));
+ piece('ball',-.18,1.34,.211,.088,.095,.018,shade(shirt,.45));
  for(const side of [-1,1]){
-  const sx=x+side*.15*scale,off=side*stride*scale;
-  model('ball',sx+off*.30,py+.40*scale,z+off*.4,.19*scale,.43*scale,.20*scale,skin,angle,side*pace);
-  orb(sx+off*.53,py+.24*scale,z+off*.76,.18*scale,.21*scale,.18*scale,skin);
-  model('ball',sx+off*.65,py+.13*scale,z+off*.94,.18*scale,.30*scale,.20*scale,'#f1eee8',angle,-side*pace);
-  bx(sx+off*.75,py+.055*scale,z+off*1.15+.04,.24*scale,.13*scale,.36*scale,'#17212b',angle);
+  const sx=side*.168;
+  const swing=step*side;
+  const thighA=[sx,.80,0],knee=[sx+side*.013,.46,swing*.65+Math.abs(swing)*.14];
+  const ankle=[sx+side*.023,.13,swing*1.32-(kick&&side===1?.33:0)];
+  limb('limb',thighA,knee,.145,shortShade);
+  limb('sock',knee,ankle,.106,socks);
+  piece('ball',knee[0],knee[1]-.015,knee[2],.20,.04,.20,shade(shirt,.90));
+  piece('ball',ankle[0],.108,ankle[2]+.11,.192,.14,.35,PLAYER_BOOT);
+  piece('ball',ankle[0],.075,ankle[2]+.172,.18,.045,.29,shade(PLAYER_BOOT,1.5));
+  const shoulder=[side*.405,1.44,0];
+  const elbow=[side*.53,1.125,-side*arms*.54];
+  const wrist=[side*.51,.87,-side*arms*1.23+.04];
+  limb('sleeve',shoulder,[shoulder[0]+(elbow[0]-shoulder[0])*.49,1.29,elbow[2]*.52],.112,shirt);
+  limb('limb',[shoulder[0]+(elbow[0]-shoulder[0])*.49,1.29,elbow[2]*.52],elbow,.097,skin);
+  limb('limb',elbow,wrist,.079,skin);
+  piece('ball',wrist[0],wrist[1]-.019,wrist[2],.135,.17,.142,dive?'#e8e7dd':skin);
  }
- bx(x,py+1.13*scale,z,.63*scale,.81*scale,.36*scale,shirt,angle);
- // a small shoulder seam and kit chest detail distinguish torso from cylinders
- bx(x,py+1.47*scale,z+.187*scale,.48*scale,.055*scale,.045*scale,'#e9eadf',angle);
- bx(x,py+1.14*scale,z+.187*scale,.12*scale,.20*scale,.04*scale,'#e3eee8',angle);
+ // Correctly proportioned head (smaller than torso); ears, eyes, nose and mouth.
+ piece('ball',0,1.765,0,.405,.49,.37,skin);
  for(const side of [-1,1]){
-  const sx=x+side*.42*scale,arm=side*stride*.7*scale;
-  model('ball',sx,py+1.15*scale,z-arm,.22*scale,.47*scale,.23*scale,shirt,angle,-side*pace*.6);
-  model('ball',sx+side*.035*scale,py+.78*scale,z-arm*1.5,.16*scale,.36*scale,.16*scale,skin,angle,-side*pace);
+  piece('ball',side*.211,1.758,0,.078,.129,.079,shade(skin,.91));
+  piece('ball',side*.091,1.791,.166,.058,.041,.024,'#f5eee4');
+  piece('ball',side*.091,1.793,.182,.031,.036,.017,'#273643');
+  piece('ball',side*.091,1.837,.171,.088,.027,.024,hair);
  }
- orb(x,py+1.75*scale,z,.42*scale,.52*scale,.42*scale,skin);
- // neck and face details; face looks toward +z as the body runs toward goal
- orb(x,py+1.48*scale,z,.20*scale,.20*scale,.18*scale,skin);
- if(style!=='kazit'){
-  orb(x,py+(style==='afro'?2.03:1.99)*scale,z,(style==='afro'?.56:.43)*scale,(style==='uzun'?.42:.20)*scale,(style==='afro'?.53:.43)*scale,hair);
-  if(style==='uzun')orb(x,py+1.68*scale,z-.18*scale,.44*scale,.45*scale,.15*scale,hair);
- }
- for(const side of [-1,1]){
-  orb(x+side*.115*scale,py+1.77*scale,z+.192*scale,.047*scale,.049*scale,.027*scale,'#112630');
- }
- // Subtle idle breath: top of torso is already separated from shorts; no texture dependency.
+ piece('ball',0,1.735,.182,.07,.105,.075,shade(skin,.95));
+ piece('ball',0,1.637,.171,.125,.025,.024,'#874f49');
+ if(style==='afro')piece('ball',0,2.035,-.005,.52,.30,.47,hair);
+ else if(style==='uzun'){
+  piece('hair',0,1.976,-.037,.444,.275,.39,hair);
+  piece('ball',0,1.785,-.165,.40,.35,.16,hair);
+ }else if(style!=='kazit'){
+  piece('hair',0,1.985,-.043,.438,.245,.378,hair);
+  piece('ball',0,1.928,.146,.32,.09,.12,hair);
+ }else piece('hair',0,1.974,-.02,.415,.115,.37,shade(hair,1.05));
 }
 
 function pitch(t){bx(0,-.24,0,78,.45,114,'#0c3426');for(let i=0;i<18;i++){let z=-49.5+i*5.8;bx(0,-.008,z,68,.023,5.8,i%2?'#20794a':'#1b6b43')}let L='#e9f1e8';for(let x of [-34,34])bx(x,.018,0,.12,.025,105,L);for(let z of [-52.5,52.5])bx(0,.018,z,68,.025,.12,L);bx(0,.018,0,68,.025,.12,L);for(let z of [-52.5,52.5]){let d=z>0?-1:1;bx(0,.018,z+d*16.5,40.32,.025,.12,L);for(let x of [-20.16,20.16])bx(x,.018,z+d*8.25,.12,.025,16.5,L);bx(0,.018,z+d*5.5,18.32,.025,.12,L);for(let x of [-9.16,9.16])bx(x,.018,z+d*2.75,.12,.025,5.5,L);for(let i=0;i<36;i++){let a=i*2*Math.PI/36,b=(i+1)*2*Math.PI/36;let x=Math.cos(a)*9.15,y=Math.sin(a)*9.15,xx=Math.cos(b)*9.15,yy=Math.sin(b)*9.15;bx((x+xx)/2,.021,(y+yy)/2,Math.hypot(xx-x,yy-y),.022,.1,L,-Math.atan2(yy-y,xx-x))}}for(let z of [-52.5,52.5]){let d=z>0?1:-1;for(let x of [-3.66,3.66]){bx(x,1.22,z,.13,2.44,.13,'#f1f1e6');bx(x,1.21,z+d*2,.075,2.4,.075,'#92a49e')}bx(0,2.44,z,7.4,.12,.13,'#f6faf5');bx(0,2.43,z+d*2,7.4,.08,.06,'#b0bfb8');for(let i=0;i<8;i++)bx(-3.5+i,1.2,z+d*2,.022,2.4,.022,'#a9beb8')}
@@ -418,7 +507,7 @@ function render(ts){requestAnimationFrame(render);if(!renderOK)return;resize();l
  const dt=cameraRig.last?Math.min(.05,(ts-cameraRig.last)/1000):.016;cameraRig.last=ts;
  if(!cameraRig.ready){cameraRig.x=p.x;cameraRig.z=p.z;cameraRig.ready=true}
  const a=1-Math.exp(-3.3*dt);cameraRig.x+=(p.x-cameraRig.x)*a;cameraRig.z+=(p.z-cameraRig.z)*a;
- eye=[cameraRig.x,5.2,cameraRig.z-13.8];target=[cameraRig.x,1.15,cameraRig.z+20];fov=54}else{eye=[10,7,-2];target=[0,.5,34];fov=57}let vp=mul(persp(fov*Math.PI/180,c.width/c.height,.1,250),look(eye,target));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(u.vp,false,new Float32Array(vp));if(screen==='story')office(t);else if(screen==='create')displayStage(t);else{pitch(t);if(screen==='title'){footballer(-2,19,'#cc926a','#21242a','#e0b84f','#f0efe2',t*1.3,1,0);footballer(6,31,'#8d6549','#222028','#ae3348','#f6f6ee',t*.9,1,Math.PI);orb(-1,.23,22,.45,.45,.45,'#f5f5df')}else if(screen==='match'&&match){let p=match.player;footballer(p.x,p.z,career.skin,career.hair,career.kit||leagues[career.country].clubs[career.club][1],'#ecebdc',p.run||0,1,0,career.hairStyle);footballer(match.keeper.x,49,'#aa805d','#191d21','#c0e97c','#192a36',match.keeperDive>0?match.keeperDive*5:t*1.5,1,Math.PI,'kisa',match.keeperDive>0?'dive':'run');for(let d of match.defenders)footballer(d.x,d.z,'#c29274','#292831','#ae4a5e','#f0f0ed',d.run||t,1,Math.PI);if(match.carrier)footballer(match.carrier.x,match.carrier.z,'#bc8965','#292831','#ae4a5e','#f0f0ed',match.run,1,Math.PI);for(let p of match.team)footballer(p.x,p.z,'#bf8d6c','#333039',career.kit||leagues[career.country].clubs[career.club][1],'#f3eee5',p.run||t,1,0);orb(match.ball.x,match.ball.y,match.ball.z,.44,.44,.44,'#f5f0e6');
+ eye=[cameraRig.x,3.6,cameraRig.z-10.8];target=[cameraRig.x,1.25,cameraRig.z+16];fov=55}else{eye=[10,7,-2];target=[0,.5,34];fov=57}let vp=mul(persp(fov*Math.PI/180,c.width/c.height,.1,250),look(eye,target));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(u.vp,false,new Float32Array(vp));if(screen==='story')office(t);else if(screen==='create')displayStage(t);else{pitch(t);if(screen==='title'){footballer(-2,19,'#cc926a','#21242a','#e0b84f','#f0efe2',t*1.3,1,0);footballer(6,31,'#8d6549','#222028','#ae3348','#f6f6ee',t*.9,1,Math.PI);orb(-1,.23,22,.45,.45,.45,'#f5f5df')}else if(screen==='match'&&match){let p=match.player;footballer(p.x,p.z,career.skin,career.hair,career.kit||leagues[career.country].clubs[career.club][1],'#ecebdc',p.run||0,1,0,career.hairStyle,match.flight?.kind==='shot'?'kick':Math.abs(joy.x)+Math.abs(joy.y)<.02?'idle':'run');footballer(match.keeper.x,49,'#aa805d','#191d21','#c0e97c','#192a36',match.keeperDive>0?match.keeperDive*5:t*1.5,1,Math.PI,'kisa',match.keeperDive>0?'dive':'run');for(let d of match.defenders)footballer(d.x,d.z,'#c29274','#292831','#ae4a5e','#f0f0ed',d.run||t,1,Math.PI,'kisa','run',Math.abs(d.z-cameraRig.z)>18);if(match.carrier)footballer(match.carrier.x,match.carrier.z,'#bc8965','#292831','#ae4a5e','#f0f0ed',match.run,1,Math.PI);for(let p of match.team)footballer(p.x,p.z,'#bf8d6c','#333039',career.kit||leagues[career.country].clubs[career.club][1],'#f3eee5',p.run||t,1,0,'kisa','run',Math.abs(p.z-cameraRig.z)>18);orb(match.ball.x,match.ball.y,match.ball.z,.44,.44,.44,'#f5f0e6');
  if(!match.flight&&match.ballOwner==='me')orb(match.player.x,.045,match.player.z,1.6,.05,1.6,'#c7f360');
  if(match.mode!=='defend'&&!match.flight){const rec=findPassReceiver(false);if(rec){orb(rec.x,.06,rec.z,1.15,.06,1.15,'#68c9e7');}}if(!match.done&&match.mode!=='defend'){let ax=clamp(match.player.x*.18+match.aim*2.8,-3.4,3.4);bx(ax,1.3,51.9,.24,.24,.1,'#f3d27a');bx(ax,1.3,51.9,.7,.04,.1,'#f6e6a5');bx(ax,1.3,51.9,.04,.7,.1,'#f6e6a5')}}else if(screen==='hub'||screen==='result'){footballer(-3,32,career?.skin||draft.skin,career?.hair||draft.hair,career?.kit||draft.kit,'#eaeaea',t*.4,1,0,career?.hairStyle||draft.hairStyle);footballer(4,40,'#bb9269','#24262b','#ad3f51','#eeeeee',t*.3,1,Math.PI)}}}
 if(!renderOK){toast('3D grafik kapalı: 2D yedek görünüm aktif.');requestAnimationFrame(renderFallback)}else requestAnimationFrame(render);
