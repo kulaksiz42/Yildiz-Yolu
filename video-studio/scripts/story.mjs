@@ -37,7 +37,7 @@ export function makeStory(input={}) {
   const beats = templates[style];
   const script = clean(input.script, 2400) || beats.join(' ');
   return {
-    id: randomUUID(), title, style, duration, script,
+    id: randomUUID(), title, style, duration, script, visual_preset:null,
     scenes: beats.map((caption,i) => ({caption,narration:caption,detail: ['Giriş', 'Gelişme', 'Dönüm noktası', 'Final'][Math.min(i,3)],shot:['wide','medium','close','wide'][i%4],weight:1})),
     storyboard_approved:false, storyboard_approved_at:null, render_fps:12, render_size:540,
     platforms: [], render_status:'pending', publish_status:'draft', scheduled_at:null,
@@ -50,7 +50,13 @@ export function cleanUpdate(current, patch={}) {
   if ('title' in patch) { const value=clean(patch.title,100); if(value.length<4) throw new Error('Başlık kısa.'); if(value!==updated.title)updated.storyboard_approved=false; updated.title=value; }
   if ('script' in patch){ const value=clean(patch.script,2400); if(value!==updated.script)updated.storyboard_approved=false; updated.script=value; }
   if ('duration' in patch){const value=Math.max(8,Math.min(90,Number(patch.duration)||18));if(value!==updated.duration)updated.storyboard_approved=false;updated.duration=value;}
-  if ('style' in patch && STYLES.includes(patch.style)){if(updated.style!==patch.style)updated.storyboard_approved=false;updated.style=patch.style;}
+  if ('style' in patch && STYLES.includes(patch.style)){if(updated.style!==patch.style)updated.storyboard_approved=false;updated.style=patch.style;if(updated.style!=='backyard')updated.visual_preset=null;}
+  if ('visual_preset' in patch) {
+    const preset=patch.visual_preset ?? null;
+    if (preset!==null && (preset!=='apple-soil-v1'||updated.style!=='backyard')) throw new Error('Görsel profil geçersiz.');
+    if (updated.visual_preset!==preset){updated.storyboard_approved=false;updated.storyboard_approved_at=null;}
+    updated.visual_preset=preset;
+  }
   if ('scenes' in patch) {
     updated.scenes=cleanScenes(patch.scenes);
     if (patch.sync_narration === true) {
