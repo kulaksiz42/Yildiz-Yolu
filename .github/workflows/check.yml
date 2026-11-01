@@ -1,0 +1,33 @@
+name: Yildiz Yolu source checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript syntax
+        run: node --check src/logic.js
+      - name: Build standalone HTML
+        run: python3 build.py
+      - name: Ensure generated HTML is committed
+        run: git diff --exit-code -- index.html
+      - name: Confirm the standalone page has no external scripts
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('index.html').read_text(encoding='utf-8')
+          assert html.count('<script>') == 1
+          assert html.count('</script>') == 1
+          assert '<script src=' not in html
+          assert 'function advanceFlight(dt)' in html
+          assert 'persistInputs();draft[k]' in html
+          print('Basic standalone build checks passed.')
+          PY
