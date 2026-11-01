@@ -2,16 +2,16 @@
 
 Mobil tarayıcıda oynanabilen, özgün bir sinematik futbolcu kariyeri prototipi.
 
-**[Canlı oyunu aç](https://kulaksiz42.github.io/Yildiz-Yolu/)** · **Güncel oyun sürümü: v0.6** · [3D futbolcu ve test raporu](docs/GAMEPLAY_V06.md)
+**[Canlı oyunu aç](https://kulaksiz42.github.io/Yildiz-Yolu/)** · **Güncel oyun sürümü: v0.7** · [Kariyer hikâyesi entegrasyonu](docs/CAREER_V07.md)
 
-## Oynanış v0.6
+## Oynanış v0.7
 
 - Altı aşamalı oyuncu oluşturma: ad/lakap, ülke, mevki, görünüm/güçlü ayak, karakter ve kulüp
 - Üç bağımsız kariyer kayıt yuvası ve eski yerel kaydı koruyarak içeri aktarma
 - Kesintisiz pas ve geri pas, seçilebilir pas hedefi, takım arkadaşları ve hareketli savunmacılar
 - Şut çeşitleri: sert, plase, aşırtma; serbest vuruş, top kapma, kontra atak
 - Dinamik saha radarı, anatomik şekilli 3D futbolcular, eklem tabanlı koşu/şut/kaleci pozları ve daha yakın kamera; WebGL yoksa 2D yedek görünüm
-- Ülkeye göre başlangıç hikâyesi ve hoca konuşmaları
+- Ülkeye göre başlangıç hikâyesi, hoca konuşmaları ve **16 isteğe bağlı, kayıtlı sonuçları olan kariyer olayı**
 
 **Sınır:** Bu hâlâ prototiptir. Yüksek kaliteli GLB rig'li futbolcu animasyonları, gelişmiş top fiziği, uzun maç/kariyer sistemleri ve gerçek Safari performans testleri henüz tamamlanmadı. Ülke/lig adlarının bir kısmı kurgusaldır. Neo Star Soccer veya FIFA'nın kodu, görsel varlığı ya da marka materyalleri oyuna dahil edilmedi.
 
@@ -26,7 +26,8 @@ Mobil tarayıcıda oynanabilen, özgün bir sinematik futbolcu kariyeri prototip
 | `tests/smoke.py` | GitHub Actions Chromium mobil smoke testi |
 | `.github/workflows/check.yml` | Sözdizimi ve build tutarlılığı |
 | `.github/workflows/mobile-smoke.yml` | Otomatik tarayıcı testi |
-| `docs/GAMEPLAY_V06.md` | v0.6 anatomik 3D modeller, test sonuçları ve sınırlar |
+| `docs/GAMEPLAY_V06.md` | v0.6 anatomik 3D modeller ve sınırlar |
+| `docs/CAREER_V07.md` | v0.7 ülke/mevki hikâyeleri, veri kaynağı ve testler |
 | `docs/THIRD_PARTY_SOURCE_REVIEW.md` | Neo Star Soccer yayın paketi ve lisans incelemesi |
 
 ## Geliştirme
