@@ -16,7 +16,7 @@ export function makeStory(input={}) {
     survival: [`Bir anda her şey değişti: ${title}.`, 'Saat ilerliyor. Telefonun şarjı yüzde on iki.', 'Önünde iki seçenek var. Hangisini seçerdin?'],
     explainer: [`Bugün şu konuyu öğreniyoruz: ${title}.`, 'Önce temel fikri anlamak gerekiyor.', 'İkinci adım: nedenini ve sonucunu birbirine bağla.', 'Peki sen olsaydın nereden başlardın?'],
     whatif: [`Ya gerçekten böyle olsaydı: ${title}?`, 'Önce sıradan bir gün gibi başlıyor.', 'Sonra her şeyi değiştiren ayrıntı geliyor.', 'Sence sonuç ne olurdu?'],
-    backyard: [`Bugün şunu kuruyoruz: ${title}.`, 'İlk olarak toprağın altında ne olduğunu görelim.', 'Sonra katmanlar tek tek yerlerine oturuyor.', 'Şimdi bütün sistem nasıl çalışıyor, bak.`']
+    backyard: [`Bugün şunu kuruyoruz: ${title}.`, 'İlk olarak toprağın altında ne olduğunu görelim.', 'Sonra katmanlar tek tek yerlerine oturuyor.', 'Şimdi bütün sistem nasıl çalışıyor, bak.']
   };
   const beats = templates[style];
   const script = clean(input.script, 2400) || beats.join(' ');

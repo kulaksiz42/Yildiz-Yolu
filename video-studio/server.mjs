@@ -93,7 +93,8 @@ const server=http.createServer(async(req,res)=>{
   }
   // Auth for all content, including previews and MP4. Only renderer receives a short-lived private server key.
   const internal=(p==='/api/render-data') && url.searchParams.get('key')===INTERNAL_KEY && req.socket.remoteAddress?.includes('127.0.0.1');
-  if(!authed(req)&&!internal&&!['/draw.js','/frame.js'].includes(p))return json(res,401,{error:'Giriş gerekli.'});
+  // The login page, stylesheet and login JavaScript must be readable before authentication.
+  if(!authed(req)&&!internal&&!['/','/index.html','/app.js','/style.css','/draw.js'].includes(p))return json(res,401,{error:'Giriş gerekli.'});
   if(req.method==='POST'&&p==='/api/logout'){
     res.setHeader('Set-Cookie','studio_session=; HttpOnly; Path=/; SameSite=Strict; Max-Age=0');return json(res,200,{ok:true});
   }
@@ -127,7 +128,7 @@ const server=http.createServer(async(req,res)=>{
       return fs.createReadStream(filepath).pipe(res);
     }
   }
-  if(req.method==='GET'&&['/','/index.html','/app.js','/draw.js','/preview.js','/style.css','/preview.html','/frame.html'].includes(p))return safeStatic(res,p);
+  if(req.method==='GET'&&['/','/index.html','/app.js','/draw.js','/preview.js','/style.css','/preview.html'].includes(p))return safeStatic(res,p);
   return json(res,404,{error:'Yol bulunamadı.'});
 });
 server.listen(PORT,HOST,()=>console.log(`Video Studio: http://${HOST}:${PORT} (şifre korumalı, yayın API'leri kapalı)`));

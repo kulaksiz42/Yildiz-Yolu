@@ -14,6 +14,13 @@ try:
             json.load(urllib.request.urlopen(url+'/health',timeout=.5));break
         except Exception:time.sleep(.1)
     else:raise RuntimeError('Server did not start')
+    # Login page must be public, protected API must reject anonymous callers.
+    assert b'Video Studio' in urllib.request.urlopen(url+'/', timeout=3).read()
+    try:
+        urllib.request.urlopen(url+'/api/videos', timeout=3)
+        raise AssertionError('Private API was exposed without a session')
+    except urllib.error.HTTPError as err:
+        assert err.code == 401
     opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor())
     def req(p,body=None,method=None):
         data=None if body is None else json.dumps(body).encode()
