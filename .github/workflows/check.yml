@@ -31,8 +31,9 @@ jobs:
           from pathlib import Path
           html=Path('index.html').read_text(encoding='utf-8')
           assert html.count('<script>') == 1
-          assert html.count('</script>') == 2
+          assert html.count('</script>') == 3  # classic game, legacy bridge, Three importmap
           assert '<script src="./assets/rig/bridge.js"></script>' in html
+          assert 'rigs/game-rigs.mjs' in html and 'rigs/vendor/three.module.js' in html
           assert 'https://cdn.' not in html and 'unpkg.com' not in html
           assert 'function advanceFlight(dt)' in html
           assert 'persistInputs();draft[k]' in html
