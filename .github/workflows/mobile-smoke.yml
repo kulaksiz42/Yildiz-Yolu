@@ -18,3 +18,5 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Run mobile career and match smoke
         run: python tests/smoke.py
+      - name: Run story decision and persistence regression
+        run: python tests/test_story_v07.py
