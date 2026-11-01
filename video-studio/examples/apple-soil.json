@@ -1,0 +1,50 @@
+{
+  "title": "Bu elma çürümüyor, işe gidiyor",
+  "style": "backyard",
+  "visual_preset": "apple-soil-v1",
+  "duration": 50,
+  "scenes": [
+    {
+      "caption": "Elma düştü. Asıl iş şimdi başlıyor.",
+      "narration": "Bu elma yere düştüğünde her şey bitti sanıyorsun. Oysa toprağın altında tam o an bir vardiya başlıyor.",
+      "detail": "Kırmızı elma çimene düşer, zıplar. Kamera hızla yaklaşır. Sıcak yan ışık; kırmızı kabuk, koyu kahverengi nemli toprak.",
+      "shot": "wide",
+      "weight": 1.2
+    },
+    {
+      "caption": "Kabuk sessizce çözülüyor",
+      "narration": "Günler geçtikçe kabuğu yumuşar, rengi solar. Gözle görünmeyen bakteriler ve küf mantarları meyvenin dokusunu ayrıştırmaya başlar.",
+      "detail": "Aynı elmanın kırmızı kabuğunda kahverengi lekeler yayılır, matlaşır. Yakın çekim, yavaş dairesel kamera. Işık yönü korunur.",
+      "shot": "close",
+      "weight": 1.1
+    },
+    {
+      "caption": "Toprağın altında ikinci şehir",
+      "narration": "Şimdi kamerayı toprağın altına indirelim. Mantarların ince iplikleri elma parçalarının arasına girer ve onları küçük moleküllere ayırır. Burada her şey yavaş ama durmadan çalışır.",
+      "detail": "Toprak kesiti: koyu humus, açık kahverengi alt tabaka, kumlu katman. Ayrıştırıcı mantar iplikleri ağ gibi dallanır. Soğuk hafif vurgu.",
+      "shot": "pan-left",
+      "weight": 1.4
+    },
+    {
+      "caption": "Solucanlar karıştırıcı",
+      "narration": "Solucanlar çürüyen parçaları yutar, toprakla karıştırır ve geride besince zengin atıklar bırakır. Bu süreç toprağı gevşetir, besin maddelerini bitkilerin kullanabileceği biçime yaklaştırır.",
+      "detail": "Pembe solucan toprak kesitindeki kanalda kıvrılarak ilerler. Kırmızı organik parçacıklar koyu humusa karışır. Orta kadraj takip.",
+      "shot": "medium",
+      "weight": 1.3
+    },
+    {
+      "caption": "Besinler köke ulaşıyor",
+      "narration": "Elmanın içindeki azot, fosfor ve potasyum gibi besinler toprağa geri karışır. Bitki kökleri uygun biçimdeki besinleri suyla birlikte alabilir. Bazı ortaklık kuran mantarlar bu alımı kolaylaştırır.",
+      "detail": "Sarı-yeşil parçacıklar mineral besinleri SEMBOLİZE eder, köke yaklaşır. Ayrıştırıcı mantarlarla kök ortaklığı kuran mantarlar ayırt edilir.",
+      "shot": "pan-right",
+      "weight": 1.4
+    },
+    {
+      "caption": "Elma gitmedi, döngüye karıştı",
+      "narration": "Elma yeni bir ağaca dönüşmedi. Ama ayrışarak toprağı besledi, o besinler başka bitkilerin büyümesine katkı sağlayabilir. Çöp yok, sadece sıradaki iş var. Sence doğada başka neler sessizce bu kadar çalışıyor?",
+      "detail": "Kamera toprağın üstüne çıkar. Aynı toprak üstünde küçük yeşil bir fidan, sıcak sabah ışığı. Elmanın izi silikleşir. Geniş çekim, yavaş geri çıkış.",
+      "shot": "wide",
+      "weight": 1.6
+    }
+  ]
+}

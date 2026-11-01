@@ -120,7 +120,7 @@ $('#importForm').onsubmit=async e=>{
    // Pre-validation avoids creating an unsalvageable draft on malformed input.
    if(source.title.length<4||source.script.length>2400||scenes.some(s=>s.caption.length<2||s.caption.length>160||s.narration.length>400||s.weight<.25||s.weight>8||!Number.isFinite(s.weight)))throw new Error('Başlık, anlatım veya sahne uzunluğu/süresi geçersiz.');
    const created=await api('/api/videos',{method:'POST',body:JSON.stringify(source)});
-   await api(`/api/videos/${created.video.id}`,{method:'PATCH',body:JSON.stringify({scenes,sync_narration:true})});
+   await api(`/api/videos/${created.video.id}`,{method:'PATCH',body:JSON.stringify({scenes,sync_narration:true,visual_preset:proposal.visual_preset==='apple-soil-v1'&&proposal.style==='backyard'?'apple-soil-v1':null})});
    await reload();closeDialogs();$('#importJSON').value='';openStoryboard(created.video.id);toast('Claude taslağı aktarıldı. Sahneleri inceleyip onayla.');
  }catch(err){toast(err.message);}
 };

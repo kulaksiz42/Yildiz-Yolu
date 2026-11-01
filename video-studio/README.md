@@ -1,8 +1,8 @@
-# Kulaksız Video Studio — Çalışan MVP (v0.1)
+# Kulaksız Video Studio — Storyboard ve kalite denetimi (v0.3)
 
 **Hikâye -> Canvas animasyon önizleme -> Playwright kareleri -> FFmpeg MP4 -> panelde video -> yayın takvimi.**
 
-Bu sürüm *gerçekten* video render eder. Dört orijinal çizim şablonu içerir: `survival`, `explainer`, `whatif`, `backyard`. Bu şablonlar, aşağıda bağlantısı verilen projelerdeki formatlardan esinlenmiş **bağımsız, sıfırdan yazılmış örneklerdir**. Tam Blender sahnesi, Remotion motoru, 66 stil veya otomatik AI senaryo üretimi henüz entegre değildir. Sosyal medya yayınları da **kasıtlı olarak kapalıdır**; zamanlama yalnız takvim kaydıdır.
+Bu sürüm *gerçekten* video render eder. v0.3 ile **storyboard editörü ve onay kapısı**, sahne kamera planları, 12/24/30 FPS, 540×960 Canvas veya 1080×1920 **upscale**, sahne bazlı kurallı kalite notları ve Claude Free JSON içe aktarımı eklendi. Dört orijinal çizim şablonu içerir: `survival`, `explainer`, `whatif`, `backyard`. Bu şablonlar, aşağıda bağlantısı verilen projelerdeki formatlardan esinlenmiş **bağımsız, sıfırdan yazılmış örneklerdir**. Tam Blender sahnesi, Remotion motoru, 66 stil veya otomatik AI senaryo üretimi henüz entegre değildir. Sosyal medya yayınları da **kasıtlı olarak kapalıdır**; zamanlama yalnız takvim kaydıdır.
 
 ## 1. Hızlı çalıştırma
 
@@ -86,21 +86,31 @@ Bu klasördeki özgün prototip kodu için kullanım izni kullanıcıya aittir. 
 - Python için `pillow` da gerekir. Çıktılar `.gitignore` ile depoya eklenmez.
 - Claude Code geliştirme rehberi: `docs/CLAUDE_CODE_HANDOFF.md`; yeniden kullanılabilir beceri: `.claude/skills/video-studio/SKILL.md`.
 
-## v0.3 — Storyboard editörü ve Claude Free desteği
 
-1. **Yeni video** oluştur veya **Claude Free taslağını aktar** ile Claude'un oluşturduğu saf JSON'u içeri al. Kaynak prompt: [docs/CLAUDE_FREE_BRIEF.md](docs/CLAUDE_FREE_BRIEF.md).
-2. **Storyboard** düğmesinde sahnelerin Canvas örnek karelerini gör. Başlık, seslendirme, yönetmen notu, 5 kamera planı, sahne sırası ve göreli süreyi değiştir.
-3. **Kaydet ve onayla**: Yeni v0.3 videolarında storyboard onayı olmadan render başlamaz (`409`). Eski v0.2 kayıtları geriye uyumludur. Senaryo değişince onay yenilenir.
-4. 12, 24 veya 30 FPS seç; 540×960 özgün çizim ya da **540×960'tan büyütülmüş** 1080×1920 MP4 dışa aktar. Yüksek çözünürlük seçeneği *native* 1080 değildir.
-5. Her render sonrasında teknik kalite raporu, contact sheet ve **kurallara dayalı** sahne notları üretilir. Görsel estetiği değerlendiren AI entegrasyonu hâlâ yoktur.
+## v0.3 – Storyboard editörü, Claude Free ve kalite iş akışı
 
-### v0.3 test komutları
+1. Panelde **Yeni video** ile konu oluştur veya **Claude Free taslağını aktar** düğmesine Claude'un geçerli JSON çıktısını yapıştır.
+2. Video satırından **Storyboard** aç. Sahne metni, seslendirme, kamera planı (geniş/orta/yakın/kaydırma), sahne sırası ve süre ağırlığını düzenle. Sahnelerin ortasından gerçek Canvas karelerini gör.
+3. **Kaydet ve onayla** işlemiyle taslağa onay ver. Yeni oluşturulan videolarda onay olmadan render API'si `409` döndürür; eski v0.2 kayıtları uyumluluk için çalışmaya devam eder.
+4. 12/24/30 FPS seçebilirsin. **1080×1920 piksel seçeneği 540×960 Canvas'ın Lanczos ile büyütülmesidir**; gerçek 1080 çözünürlükte yeni ayrıntı hesaplamaz.
+5. MP4 hazır olunca **Kalite raporu** teknik kontrolden geçen öğeleri, sahne bazlı editoryal uyarıları ve contact sheet görselini gösterir. AI estetik yorumu **yoktur**.
+6. MP4 render öncesi daha önce onaylanan senaryo/sahne değiştirilirse onay sıfırlanır. Takvim kaydı paylaşım yapmaz. API anahtarlarını git'e koyma.
+
+**Claude Free:** [docs/CLAUDE_FREE_BRIEF.md](docs/CLAUDE_FREE_BRIEF.md) içindeki promptu normal Claude sohbetine yapıştır. Sonucu JSON olarak kopyala ve panele aktar. Claude Free, bu bağlantıyla GitHub'a yazamaz; yaratıcı asistan/araştırmacı rolünde kullanılır. Değerleri gerçek dışı bilgiden arındır ve sahneleri bizzat kontrol et.
+
+### v0.3 testleri
 
 ```bash
-npm run check             # 16 otomatik Node testi
-python3 scripts/smoke.py  # Gerçek HTTP, onay kapısı, sesli MP4, kalite raporu
-python3 scripts/ui_smoke.py  # Gerçek Chromium'da arayüz, mock API ile; ağ engeli yok
-STUDIO_SMOKE_HIGH_RES=1 python3 scripts/smoke.py  # 24fps / upscale 1080 test
+npm run check
+python3 scripts/smoke.py
+python3 scripts/ui_smoke.py  # localhost ağ kısıtlı CI'da backend yerine mock API kullanarak gerçek UI kodunu test eder
 ```
 
-**Henüz yok:** Claude/ChatGPT API ile doğrudan senaryo üretimi, native 1080 Canvas çizimi, otomatik AI Critic, Next.js ve sosyal medya OAuth/yayın. Claude Free yalnızca kopyala-yapıştır üzerinden yaratıcı metin sağlayabilir; dosya yazma/GitHub erişimi yoktur. Gerçek seslendirme için yerel eSpeak veya ElevenLabs gerekir.
+Video üretimi `espeak` veya isteğe bağlı ElevenLabs gerektirir. Yayın API'leri hâlâ bağlanmamıştır.
+
+## Apple / Soil Pilot (özel 2.5D profil)
+
+- Hazır aktarım JSON'u: [`examples/apple-soil.json`](examples/apple-soil.json)
+- Altı sahnelik görsel yönetmenlik / teknik geliştirme notları: [`docs/APPLE_SOIL_PILOT.md`](docs/APPLE_SOIL_PILOT.md)
+- `visual_preset: apple-soil-v1` yalnız `backyard` videoları için isteğe bağlıdır; profil aktif olduğunda eski ev-kesit demosu yerine elma, mantar, solucan, kök ve fidan sahnelerini özgün Canvas çizimleri oluşturur.
+- Sahne nesneleri `detail` metninden otomatik türetilmez. Pilot görseller hazır kod desenleridir. Tam 3D/fotogerçekçilik ve AI Critic henüz mevcut değildir.
