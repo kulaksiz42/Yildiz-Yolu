@@ -22,4 +22,12 @@ jobs:
         run: python tests/test_story_v07.py
       - name: Test actual Three.js GLB match rendering
         run: python tests/test_rig_webgl.py
+      - name: Save WebGL screenshot for visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rig-webgl-preview
+          path: tests/rig_v08_preview.png
+          if-no-files-found: ignore
+          retention-days: 7
 
