@@ -221,8 +221,8 @@ Kriterler: Dikkat (15) · Yaş kapsayıcılığı (15) · Eğlence/Müzik (15) �
 | 5 | Çay Ocağı | 11 | 13 | 8 | 10 | 10 | 13 | 7 | 72 |
 | 4 | Ritim Kulesi | 10 | 11 | 11 | 12 | 10 | 11 | 7 | 72 |
 | 11 | Boğaz Köprüsü | 10 | 12 | 9 | 12 | 9 | 11 | 7 | 70 |
-| 15 | Karagöz | 10 | 10 | 10 | 9 | 10 | 11 | 5 | 65 |
 | 8 | Pazar Yeri | 11 | 12 | 11 | 9 | 10 | 14 | 3 | 70 |
+| 15 | Karagöz | 10 | 10 | 10 | 9 | 10 | 11 | 5 | 65 |
 | 13 | Bulut Çobanları | 8 | 10 | 9 | 10 | 9 | 9 | 7 | 62 |
 
 **Gerekçeler (finalistler):**
